@@ -303,9 +303,20 @@
                         const pdfWidth = pdf.internal.pageSize.getWidth();
                         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                        
+                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                         const today = new Date();
                         const filename = `PEC_${document.getElementById('nom').value.replace(/ /g, '_')}_${today.toISOString().slice(0,10)}.pdf`;
-                        pdf.save(filename);
+
+                        if (isIOS) {
+                            // Sur iOS, le téléchargement direct est souvent bloqué.
+                            // On ouvre le PDF dans un nouvel onglet. L'utilisateur peut ensuite le sauvegarder/partager.
+                            const pdfOutput = pdf.output('bloburl');
+                            window.open(pdfOutput, '_blank');
+                        } else {
+                            // Pour les autres systèmes (PC, Android), le téléchargement direct fonctionne.
+                            pdf.save(filename);
+                        }
                     })
                     .finally(() => {
                         // Nettoyage après le rendu
@@ -332,4 +343,5 @@
 </body>
 
 </html>
+
 
