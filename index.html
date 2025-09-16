@@ -296,25 +296,40 @@
                 });
 
 
-                html2canvas(formToExport, { scale: 2, useCORS: true })
+                html2canvas(formToExport, { scale: 2, useCORS: true, windowWidth: formToExport.scrollWidth, windowHeight: formToExport.scrollHeight })
                     .then(canvas => {
                         const imgData = canvas.toDataURL('image/png');
                         const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                         
+                        const pageHeightMM = pdf.internal.pageSize.getHeight();
+                        const pdfWidthMM = pdf.internal.pageSize.getWidth();
+                        const canvasHeightMM = (canvas.height * pdfWidthMM) / canvas.width;
+                        
+                        let heightLeft = canvasHeightMM;
+                        let position = 0;
+
+                        // Add the first page
+                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidthMM, canvasHeightMM);
+                        heightLeft -= pageHeightMM;
+                        
+                        // Add new pages if content is longer than one page
+                        while (heightLeft > 0) {
+                            position = heightLeft - canvasHeightMM;
+                            pdf.addPage();
+                            pdf.addImage(imgData, 'PNG', 0, position, pdfWidthMM, canvasHeightMM);
+                            heightLeft -= pageHeightMM;
+                        }
+
                         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                         const today = new Date();
                         const filename = `PEC_${document.getElementById('nom').value.replace(/ /g, '_')}_${today.toISOString().slice(0,10)}.pdf`;
 
                         if (isIOS) {
-                            // Sur iOS, le téléchargement direct est souvent bloqué.
-                            // On ouvre le PDF dans un nouvel onglet. L'utilisateur peut ensuite le sauvegarder/partager.
+                            // On iOS, open in a new tab
                             const pdfOutput = pdf.output('bloburl');
                             window.open(pdfOutput, '_blank');
                         } else {
-                            // Pour les autres systèmes (PC, Android), le téléchargement direct fonctionne.
+                            // For other systems, download directly
                             pdf.save(filename);
                         }
                     })
@@ -326,9 +341,6 @@
                         resetForm(); // Réinitialisation du formulaire
                     });
             });
-
-            // Export CSV
-            // Supprimé comme demandé
 
              // Supprimer la bordure rouge en cas de saisie
             supportForm.querySelectorAll('[required]').forEach(field => {
@@ -343,5 +355,4 @@
 </body>
 
 </html>
-
 
