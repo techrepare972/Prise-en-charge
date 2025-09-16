@@ -13,9 +13,9 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* A7 aspect ratio (1:1.41) */
+        /* Changed aspect ratio to 1:1 for more compact photos */
         .aspect-a7 {
-            aspect-ratio: 1 / 1.41;
+            aspect-ratio: 1 / 1;
         }
     </style>
 </head>
@@ -101,7 +101,7 @@
                         <p class="text-xs text-gray-500">JPG, PNG, HEIC, etc.</p>
                     </div>
                 </div>
-                <div id="image-previews" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+                <div id="image-previews" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4"></div>
             </div>
 
             <!-- Signature -->
@@ -303,22 +303,21 @@
                         
                         const pageHeightMM = pdf.internal.pageSize.getHeight();
                         const pdfWidthMM = pdf.internal.pageSize.getWidth();
-                        const canvasHeightMM = (canvas.height * pdfWidthMM) / canvas.width;
                         
-                        let heightLeft = canvasHeightMM;
-                        let position = 0;
-
-                        // Add the first page
-                        pdf.addImage(imgData, 'PNG', 0, position, pdfWidthMM, canvasHeightMM);
-                        heightLeft -= pageHeightMM;
+                        const imgAspectRatio = canvas.width / canvas.height;
                         
-                        // Add new pages if content is longer than one page
-                        while (heightLeft > 0) {
-                            position = heightLeft - canvasHeightMM;
-                            pdf.addPage();
-                            pdf.addImage(imgData, 'PNG', 0, position, pdfWidthMM, canvasHeightMM);
-                            heightLeft -= pageHeightMM;
+                        let finalImgWidth = pdfWidthMM;
+                        let finalImgHeight = finalImgWidth / imgAspectRatio;
+                        
+                        if (finalImgHeight > pageHeightMM) {
+                            finalImgHeight = pageHeightMM;
+                            finalImgWidth = finalImgHeight * imgAspectRatio;
                         }
+                        
+                        const xOffset = (pdfWidthMM - finalImgWidth) / 2;
+
+                        // Add the image to the PDF, scaled to fit the page
+                        pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
 
                         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                         const today = new Date();
