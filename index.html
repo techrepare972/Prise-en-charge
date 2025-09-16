@@ -23,7 +23,6 @@
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl p-8" id="form-container">
         <!-- En-tête -->
         <header id="form-header" class="text-center mb-10">
-            <!-- Changed src to relative path for GitHub pages and added crossorigin -->
             <img src="logo.png" crossorigin="anonymous" alt="Logo de TechPrecision" class="mx-auto mb-4 h-12">
             <h1 class="text-3xl font-bold text-gray-800">TECHPRECISION</h1>
             <h2 class="text-xl text-gray-600 mt-1">Prise en charge matériel</h2>
@@ -131,6 +130,17 @@
             </div>
         </div>
     </div>
+    
+    <!-- Hidden footer for PDF generation -->
+    <div id="pdf-mentions" class="hidden">
+        <footer class="text-left text-[8px] text-gray-600 mt-6 pt-3 border-t">
+            <h4 class="font-bold mb-1">Mentions importantes et conditions de prise en charge</h4>
+            <p class="mb-1"><strong>Responsabilité des données :</strong> Le client reconnaît être le seul responsable de la sauvegarde de l'intégralité de ses données (documents, photos, logiciels, etc.) avant de confier son matériel. Techprecision ne pourra en aucun cas être tenue pour responsable de la perte ou de l'altération de données pouvant survenir lors de l'intervention technique.</p>
+            <p class="mb-1"><strong>Garantie :</strong> Nos interventions et les pièces détachées que nous fournissons sont garanties pour une durée de 3 mois à compter de la date de restitution de l'appareil. Cette garantie couvre uniquement la panne ou le défaut objet de la présente réparation.</p>
+            <p><strong>Conditions générales :</strong> La signature de cette fiche de prise en charge vaut acceptation sans réserve de nos conditions générales de réparation.</p>
+        </footer>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -279,7 +289,6 @@
                 if (!validateForm()) return;
 
                 const formToExport = document.getElementById('form-container');
-                // The temporary container will now be a clone of the original to manipulate styles for PDF
                 const renderContainer = formToExport.cloneNode(true);
                 
                 renderContainer.style.position = 'absolute';
@@ -288,7 +297,6 @@
                 renderContainer.style.padding = '32px';
                 renderContainer.style.margin = '0 auto';
                 
-                // Center all content inside the temporary container for PDF generation
                 renderContainer.querySelector('#form-body-wrapper').style.textAlign = 'center';
                 renderContainer.querySelectorAll('form > div, .grid, .flex').forEach(el => {
                     el.classList.add('justify-center', 'text-center');
@@ -299,10 +307,13 @@
                 });
                  renderContainer.querySelector('.mt-2.pt-5').classList.add('flex', 'justify-center');
 
+                // Clone and append the legal mentions footer
+                const mentionsFooter = document.getElementById('pdf-mentions').cloneNode(true);
+                mentionsFooter.classList.remove('hidden');
+                renderContainer.appendChild(mentionsFooter);
+
                 document.body.appendChild(renderContainer);
 
-
-                // Prepare the CLONED elements for rendering
                 const elementsToHide = [
                     ...renderContainer.querySelectorAll('button'),
                     renderContainer.querySelector('#file-upload').closest('.border-dashed')
@@ -356,7 +367,6 @@
                             finalImgWidth = finalImgHeight * imgAspectRatio;
                         }
                         
-                        // Calculate offset to center the image on the PDF page
                         const xOffset = (pdfWidthMM - finalImgWidth) / 2;
                         
                         pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
