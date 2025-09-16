@@ -101,7 +101,7 @@
                         <p class="text-xs text-gray-500">JPG, PNG, HEIC, etc.</p>
                     </div>
                 </div>
-                <div id="image-previews" class="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4"></div>
+                <div id="image-previews" class="mt-4 grid grid-cols-2 gap-4"></div>
             </div>
 
             <!-- Signature -->
@@ -314,9 +314,9 @@
                             finalImgWidth = finalImgHeight * imgAspectRatio;
                         }
                         
-                        const xOffset = (pdfWidthMM - finalImgWidth) / 2;
+                        const xOffset = 0; // Aligns the content to the left of the PDF page
 
-                        // Add the image to the PDF, scaled to fit the page
+                        // Add the image to the PDF, scaled to fit the page, but now left-aligned
                         pdf.addImage(imgData, 'PNG', xOffset, 0, finalImgWidth, finalImgHeight);
 
                         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
