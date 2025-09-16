@@ -23,7 +23,8 @@
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl p-8" id="form-container">
         <!-- En-tête -->
         <header id="form-header" class="text-center mb-10">
-            <img src="logo.png" crossorigin="anonymous" alt="Logo de TechPrecision" class="mx-auto mb-4 h-12">
+            <!-- FIX: Replaced local 'logo.png' with a placeholder image to prevent loading errors -->
+            <img src="https://placehold.co/250x60/FFFFFF/000000?text=TechPrecision" crossorigin="anonymous" alt="Logo de TechPrecision" class="mx-auto mb-4 h-12">
             <h1 class="text-3xl font-bold text-gray-800">TECHPRECISION</h1>
             <h2 class="text-xl text-gray-600 mt-1">Prise en charge matériel</h2>
         </header>
@@ -374,6 +375,11 @@
                         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                         const today = new Date();
                         const filename = `PEC_${document.getElementById('nom').value.replace(/ /g, '_')}_${today.toISOString().slice(0,10)}.pdf`;
+                        
+                        // FIX: Set the PDF's title in its metadata. iOS's Share sheet should pick this up.
+                        pdf.setProperties({
+                            title: filename
+                        });
 
                         if (isIOS) {
                             window.open(pdf.output('bloburl'), '_blank');
