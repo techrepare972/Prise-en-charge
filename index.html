@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechPrecision - Prise en charge matériel</title>
+    <title>TechPrecision - Gestion des fiches</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -12,20 +12,67 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Changed background color for a softer look */
         }
         .aspect-a7 {
             aspect-ratio: 1 / 1;
         }
+        /* Hide the form container initially */
+        #form-container {
+            display: none;
+        }
+        .btn-primary {
+            @apply bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center space-x-2;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-150 ease-in-out flex items-center justify-center space-x-2;
+        }
     </style>
 </head>
 
-<body class="bg-gray-100 p-4 sm:p-6 md:p-8">
+<body class="p-4 sm:p-6 md:p-8">
+
+    <!-- Screen de sélection -->
+    <div id="selection-screen" class="max-w-2xl mx-auto text-center">
+        <header class="mb-10">
+            <img src="https://placehold.co/200x50/000000/FFFFFF?text=TechPrecision" crossorigin="anonymous" alt="Logo de TechPrecision" class="mx-auto mb-4 h-12">
+            <h1 class="text-3xl font-bold text-gray-800">Gestion des fiches</h1>
+            <p class="text-gray-600 mt-2">Veuillez sélectionner le type de fiche à créer.</p>
+        </header>
+        <div class="bg-white rounded-lg shadow-2xl p-8 space-y-6">
+            <button id="btn-prise-en-charge" class="w-full text-left p-6 bg-slate-50 hover:bg-blue-100 rounded-lg border border-slate-200 transition duration-200 flex items-center space-x-4">
+                <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Fiche de prise en charge</h2>
+                    <p class="text-gray-600">Pour enregistrer un nouveau matériel déposé par un client.</p>
+                </div>
+            </button>
+            <button id="btn-remise-client" class="w-full text-left p-6 bg-slate-50 hover:bg-green-100 rounded-lg border border-slate-200 transition duration-200 flex items-center space-x-4">
+                 <div class="bg-green-100 text-green-600 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Fiche de remise client</h2>
+                    <p class="text-gray-600">Pour acter la restitution du matériel réparé au client.</p>
+                </div>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Conteneur du formulaire (initialement caché) -->
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl p-8" id="form-container">
         <!-- En-tête -->
         <header id="form-header" class="text-center mb-10">
-            <img src="logo.png" crossorigin="anonymous" alt="Logo de TechPrecision" class="mx-auto mb-4 h-12">
+            <img src="https://placehold.co/200x50/000000/FFFFFF?text=TechPrecision" crossorigin="anonymous" alt="Logo de TechPrecision" class="mx-auto mb-4 h-12">
             <h1 class="text-3xl font-bold text-gray-800">TECHPRECISION</h1>
-            <h2 class="text-xl text-gray-600 mt-1">Prise en charge matériel</h2>
+            <h2 id="form-title" class="text-xl text-gray-600 mt-1"></h2>
         </header>
 
         <div id="form-body-wrapper">
@@ -34,7 +81,7 @@
                 <!-- Date et Informations Client -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                     <div>
-                        <label for="date" class="block text-sm font-medium text-gray-700">Date de prise en charge</label>
+                        <label for="date" id="date-label" class="block text-sm font-medium text-gray-700"></label>
                         <input type="text" id="date" name="date" readonly class="mt-1 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
                     </div>
                     <div class="flex items-end space-x-4">
@@ -74,10 +121,10 @@
                     </div>
                 </div>
 
-                <!-- Problème et État -->
+                <!-- Problème / Intervention -->
                 <div>
-                    <label for="probleme" class="block text-sm font-medium text-gray-700">Problème constaté par le client</label>
-                    <textarea id="probleme" name="probleme" rows="4" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2" placeholder="Description détaillée du problème..."></textarea>
+                    <label for="probleme" id="probleme-label" class="block text-sm font-medium text-gray-700"></label>
+                    <textarea id="probleme" name="probleme" rows="4" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"></textarea>
                 </div>
                  <div>
                     <label for="etat_materiel" class="block text-sm font-medium text-gray-700">État général du matériel</label>
@@ -117,39 +164,61 @@
                         <button type="button" id="clear-signature" class="absolute top-2 right-2 bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded hover:bg-gray-300">Effacer</button>
                     </div>
                 </div>
-
             </form>
-             <!-- Actions -->
+            <!-- Actions -->
             <div id="error-container" class="text-left text-sm text-red-600 h-5 mt-2"></div>
             <div class="mt-2 pt-5 border-t border-gray-200">
                 <div class="flex justify-start space-x-3">
-                    <button type="button" id="export-pdf" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                        Générer PDF
+                    <button type="button" id="back-to-selection" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                        </svg>
+                        <span>Retour</span>
+                    </button>
+                    <button type="button" id="export-pdf" class="btn-primary">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Générer PDF</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Hidden footer for PDF generation -->
+    <!-- Pied de page caché pour la génération PDF -->
     <div id="pdf-mentions" class="hidden">
         <footer class="text-left text-[8px] text-gray-600 mt-6 pt-3 border-t">
-            <h4 class="font-bold mb-1">Mentions importantes et conditions de prise en charge</h4>
-            <p class="mb-1"><strong>Responsabilité des données :</strong> Le client reconnaît être le seul responsable de la sauvegarde de l'intégralité de ses données (documents, photos, logiciels, etc.) avant de confier son matériel. Techprecision ne pourra en aucun cas être tenue pour responsable de la perte ou de l'altération de données pouvant survenir lors de l'intervention technique.</p>
-            <p class="mb-1"><strong>Garantie :</strong> Nos interventions et les pièces détachées que nous fournissons sont garanties pour une durée de 3 mois à compter de la date de restitution de l'appareil. Cette garantie couvre uniquement la panne ou le défaut objet de la présente réparation.</p>
-            <p><strong>Conditions générales :</strong> La signature de cette fiche de prise en charge vaut acceptation sans réserve de nos conditions générales de réparation.</p>
+            <h4 class="font-bold mb-1">Mentions importantes et conditions</h4>
+            <p class="mb-1"><strong>Responsabilité des données :</strong> Le client reconnaît être le seul responsable de la sauvegarde de l'intégralité de ses données avant de confier son matériel. Techprecision ne pourra en aucun cas être tenue pour responsable de la perte de données.</p>
+            <p class="mb-1"><strong>Garantie :</strong> Nos interventions et les pièces détachées sont garanties pour une durée de 3 mois à compter de la date de restitution de l'appareil. Cette garantie couvre uniquement la panne ou le défaut objet de la présente réparation.</p>
+            <p><strong>Conditions générales :</strong> La signature de cette fiche vaut acceptation sans réserve de nos conditions générales de réparation et de restitution.</p>
         </footer>
     </div>
 
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // --- Global Variables ---
+            const selectionScreen = document.getElementById('selection-screen');
+            const formContainer = document.getElementById('form-container');
+            const btnPriseEnCharge = document.getElementById('btn-prise-en-charge');
+            const btnRemiseClient = document.getElementById('btn-remise-client');
+            const btnBackToSelection = document.getElementById('back-to-selection');
+            
             const supportForm = document.getElementById('support-form');
             const dateField = document.getElementById('date');
             const fileInput = document.getElementById('file-upload');
             const previewsContainer = document.getElementById('image-previews');
             const canvas = document.getElementById('signature-pad');
             const ctx = canvas.getContext('2d');
+
+            const formTitle = document.getElementById('form-title');
+            const dateLabel = document.getElementById('date-label');
+            const problemeLabel = document.getElementById('probleme-label');
+            const problemeTextarea = document.getElementById('probleme');
+            
+            let currentFormType = ''; // 'prise-en-charge' or 'remise-client'
             let uploadedFiles = [];
             let drawing = false;
             let lastPos = { x: 0, y: 0 };
@@ -199,9 +268,39 @@
                 return allValid;
             }
 
-            // --- Initialisation ---
+            function setupForm(formType) {
+                currentFormType = formType;
+                resetForm(); // Reset form state before showing
+
+                if (formType === 'prise-en-charge') {
+                    formTitle.textContent = 'Prise en charge matériel';
+                    dateLabel.textContent = 'Date de prise en charge';
+                    problemeLabel.textContent = 'Problème constaté par le client';
+                    problemeTextarea.placeholder = 'Description détaillée du problème...';
+                } else if (formType === 'remise-client') {
+                    formTitle.textContent = 'Remise matériel au client';
+                    dateLabel.textContent = 'Date de remise';
+                    problemeLabel.textContent = 'Intervention effectuée et remarques';
+                    problemeTextarea.placeholder = 'Détail des réparations, changements de pièces, etc.';
+                }
+
+                // Switch views
+                selectionScreen.style.display = 'none';
+                formContainer.style.display = 'block';
+                resizeCanvas(); // Recalculate canvas size now that it's visible
+            }
+
+            // --- Initialisation & Event Listeners ---
 
             setTodayDate();
+
+            btnPriseEnCharge.addEventListener('click', () => setupForm('prise-en-charge'));
+            btnRemiseClient.addEventListener('click', () => setupForm('remise-client'));
+            btnBackToSelection.addEventListener('click', () => {
+                formContainer.style.display = 'none';
+                selectionScreen.style.display = 'block';
+                currentFormType = '';
+            });
 
             // Gestion de l'upload d'images
             fileInput.addEventListener('change', (event) => {
@@ -242,7 +341,7 @@
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext('2d').scale(ratio, ratio);
+                ctx.scale(ratio, ratio);
                 ctx.strokeStyle = '#000000';
                 ctx.lineWidth = 2;
                 ctx.lineCap = 'round';
@@ -256,7 +355,7 @@
                 return { x: mouseEvent.clientX - rect.left, y: mouseEvent.clientY - rect.top };
             }
             
-             function getTouchPos(canvasDom, touchEvent) {
+            function getTouchPos(canvasDom, touchEvent) {
                 const rect = canvasDom.getBoundingClientRect();
                 return { x: touchEvent.touches[0].clientX - rect.left, y: touchEvent.touches[0].clientY - rect.top };
             }
@@ -291,23 +390,14 @@
                 const formToExport = document.getElementById('form-container');
                 const renderContainer = formToExport.cloneNode(true);
                 
+                // Prepare container for rendering
                 renderContainer.style.position = 'absolute';
                 renderContainer.style.left = '-9999px';
-                renderContainer.style.width = '800px';
+                renderContainer.style.width = '800px'; // A fixed width for consistent PDF output
                 renderContainer.style.padding = '32px';
                 renderContainer.style.margin = '0 auto';
                 
-                renderContainer.querySelector('#form-body-wrapper').style.textAlign = 'center';
-                renderContainer.querySelectorAll('form > div, .grid, .flex').forEach(el => {
-                    el.classList.add('justify-center', 'text-center');
-                    el.classList.remove('justify-start', 'text-left');
-                });
-                 renderContainer.querySelectorAll('label').forEach(el => {
-                    el.classList.add('mx-auto');
-                });
-                 renderContainer.querySelector('.mt-2.pt-5').classList.add('flex', 'justify-center');
-
-                // Clone and append the legal mentions footer
+                // Add legal mentions footer
                 const mentionsFooter = document.getElementById('pdf-mentions').cloneNode(true);
                 mentionsFooter.classList.remove('hidden');
                 renderContainer.appendChild(mentionsFooter);
@@ -324,7 +414,7 @@
                 fieldsToConvert.forEach(field => {
                     const textValue = document.createElement('div');
                     const originalField = document.getElementById(field.id); 
-                    textValue.className = 'pdf-replacement mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm p-2 min-h-[42px]';
+                    textValue.className = 'pdf-replacement mt-1 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm p-2 min-h-[42px] text-left'; // Ensured text-left
                     textValue.textContent = field.tagName === 'SELECT' ? originalField.options[originalField.selectedIndex].text : (originalField.value || ' ');
                     textValue.style.whiteSpace = 'pre-wrap';
                     field.style.display = 'none';
@@ -373,7 +463,9 @@
 
                         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                         const today = new Date();
-                        const filename = `PEC_${document.getElementById('nom').value.replace(/ /g, '_')}_${today.toISOString().slice(0,10)}.pdf`;
+                        const clientName = document.getElementById('nom').value.replace(/ /g, '_') || 'client';
+                        const filePrefix = currentFormType === 'prise-en-charge' ? 'PEC' : 'REMISE';
+                        const filename = `${filePrefix}_${clientName}_${today.toISOString().slice(0,10)}.pdf`;
 
                         if (isIOS) {
                             window.open(pdf.output('bloburl'), '_blank');
@@ -383,7 +475,10 @@
                     })
                     .finally(() => {
                         document.body.removeChild(renderContainer);
-                        resetForm();
+                        // Go back to selection screen after PDF generation
+                        formContainer.style.display = 'none';
+                        selectionScreen.style.display = 'block';
+                        currentFormType = '';
                     });
             });
 
@@ -398,5 +493,4 @@
     </script>
 </body>
 </html>
-
 
