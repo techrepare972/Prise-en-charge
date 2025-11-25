@@ -20,7 +20,8 @@
 
         /* HEADER */
         .header-logo { text-align: center; margin-bottom: 30px; }
-        .header-logo img { max-height: 80px; }
+        /* MODIFICATION 1 (Écran) : Taille réduite à 60px */
+        .header-logo img { max-height: 60px; width: auto; }
         h1, h2 { text-align: center; color: var(--primary); margin-top: 5px; }
 
         /* NAVIGATION (ÉCRANS) */
@@ -60,7 +61,6 @@
         /* UTILITAIRES */
         .hidden { display: none; }
         
-        /* Pour l'impression papier directe via navigateur (optionnel) */
         @media print {
             .actions, .back-link, input[type="file"], #clearSig { display: none; }
             .container { box-shadow: none; border: none; }
@@ -119,7 +119,11 @@
             <div id="section-intake" class="hidden">
                 <div class="form-group">
                     <label>État général</label>
-                    <textarea id="condition" placeholder="Bon état, rayures, manque vis..."></textarea>
+                    <select id="condition">
+                        <option value="Bon état">Bon état</option>
+                        <option value="Quelques traces d'usure">Quelques traces d'usure</option>
+                        <option value="Mauvais état">Mauvais état</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Problème constaté</label>
@@ -163,8 +167,8 @@
 <script>
     // --- VARIABLES GLOBALES ---
     const { jsPDF } = window.jspdf;
-    let currentType = ''; // 'prise_en_charge' ou 'remise_materiel'
-    let uploadedPhotos = []; // Stocke les images en base64
+    let currentType = '';
+    let uploadedPhotos = [];
 
     // --- NAVIGATION ---
     function goHome() {
@@ -178,20 +182,18 @@
         document.getElementById('homeScreen').classList.remove('active');
         document.getElementById('formScreen').classList.add('active');
         
-        // Configurer le titre et les champs visibles
         const titleEl = document.getElementById('formTitle');
         const intakeSec = document.getElementById('section-intake');
         const returnSec = document.getElementById('section-return');
         const problemField = document.getElementById('problem');
 
-        // Date du jour par défaut
         document.getElementById('date').valueAsDate = new Date();
 
         if (type === 'prise_en_charge') {
             titleEl.innerText = "Fiche Prise en Charge";
             intakeSec.classList.remove('hidden');
             returnSec.classList.add('hidden');
-            problemField.setAttribute('required', 'required'); // Obligatoire
+            problemField.setAttribute('required', 'required');
         } else {
             titleEl.innerText = "Fiche Remise Matériel";
             intakeSec.classList.add('hidden');
@@ -216,10 +218,8 @@
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = function(event) {
-                // Stocker Base64
                 if(uploadedPhotos.length < 2) {
                     uploadedPhotos.push(event.target.result);
-                    // Afficher aperçu
                     const img = document.createElement('img');
                     img.src = event.target.result;
                     img.className = 'preview-img';
@@ -236,7 +236,6 @@
     let isDrawing = false;
 
     function resizeCanvas() {
-        // Ajuster la résolution interne du canvas à sa taille d'affichage
         const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = rect.width;
         canvas.height = rect.height;
@@ -253,11 +252,9 @@
         return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    // Événements Souris
     canvas.addEventListener('mousedown', (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
     canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); });
     canvas.addEventListener('mouseup', () => { isDrawing = false; });
-    // Événements Tactiles
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive: false});
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); }, {passive: false});
     canvas.addEventListener('touchend', () => { isDrawing = false; });
@@ -270,23 +267,19 @@
     document.getElementById('appForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 1. Récupération des données
         const date = document.getElementById('date').value;
         const clientName = document.getElementById('clientName').value;
         const phone = document.getElementById('phone').value;
         const deviceType = document.getElementById('deviceType').value;
         const model = document.getElementById('model').value;
         
-        // Spécifiques
-        const condition = document.getElementById('condition').value;
+        const condition = document.getElementById('condition').value; // Récupère la valeur du Select
         const problem = document.getElementById('problem').value;
         const refIntake = document.getElementById('refIntake').value;
         const workDone = document.getElementById('workDone').value;
 
-        // Signature
         const signatureImg = canvas.toDataURL('image/png');
 
-        // 2. Initialisation jsPDF
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
         const margin = 20;
@@ -295,31 +288,30 @@
 
         // --- EN-TÊTE ---
         const logoEl = document.getElementById('companyLogo');
-        // Vérification que le logo est bien chargé pour l'intégrer au PDF
         if (logoEl && logoEl.complete && logoEl.naturalHeight !== 0) {
             const c = document.createElement('canvas');
             c.width = logoEl.naturalWidth;
             c.height = logoEl.naturalHeight;
-            // Utilisation de 'image/png' pour garder la transparence
             c.getContext('2d').drawImage(logoEl, 0, 0);
             const logoBase64 = c.toDataURL('image/png'); 
             
-            // Intégration PNG dans le PDF
-            doc.addImage(logoBase64, 'PNG', margin, currentY, 30, 20); 
+            // MODIFICATION 1 (PDF) : Taille réduite à 21x14mm (ratio ~3:2 conservé)
+            doc.addImage(logoBase64, 'PNG', margin, currentY, 21, 14); 
         } else {
-            // Fallback si logo manquant
-            doc.rect(margin, currentY, 30, 20);
+            doc.rect(margin, currentY, 21, 14);
             doc.setFontSize(8);
-            doc.text("LOGO", margin + 5, currentY + 12);
+            doc.text("LOGO", margin + 5, currentY + 8);
         }
 
-        // Titre Entreprise
+        // MODIFICATION 3 : Titres centrés sur la page
         doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
-        doc.text("TECHPRECISION", margin + 40, currentY + 10);
+        // Utilisation de pageWidth / 2 et align: "center"
+        doc.text("TECHPRECISION", pageWidth / 2, currentY + 8, { align: "center" });
+
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
-        doc.text("Service de réparation informatique", margin + 40, currentY + 18);
+        doc.text("Service de réparation informatique", pageWidth / 2, currentY + 16, { align: "center" });
 
         currentY += 35;
 
@@ -334,7 +326,7 @@
         doc.text(docTitle, pageWidth / 2, currentY, { align: "center" });
         currentY += 15;
 
-        // --- INFO CLIENT (2 colonnes) ---
+        // --- INFO CLIENT ---
         doc.setFontSize(10);
         const col1X = margin;
         const col2X = margin + 90;
@@ -369,8 +361,8 @@
             doc.setFont("helvetica", "bold");
             doc.text("État général :", margin + 2, textY);
             doc.setFont("helvetica", "normal");
-            const splitCondition = doc.splitTextToSize(condition, contentWidth - 40);
-            doc.text(splitCondition, margin + 35, textY);
+            // Affichage de la valeur sélectionnée dans le menu déroulant
+            doc.text(condition, margin + 35, textY);
             
             textY += 15;
             
@@ -390,7 +382,7 @@
 
         currentY += 70;
 
-        // --- PHOTOS (2 max) ---
+        // --- PHOTOS ---
         if (uploadedPhotos.length > 0) {
             doc.setFont("helvetica", "bold");
             doc.text("Photos du matériel :", margin, currentY);
