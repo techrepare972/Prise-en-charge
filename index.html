@@ -32,7 +32,7 @@
             background-color: white !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            padding: 40px !important; /* Marges papier */
+            padding: 30px !important; /* Marges papier réduites */
             max-width: none !important;
             width: 794px !important; /* Largeur A4 en pixels (96dpi) */
             min-height: 1123px !important; /* Hauteur A4 min */
@@ -44,33 +44,28 @@
             z-index: -1000;
         }
         .pdf-mode header {
-            margin-bottom: 20px !important;
-            border-bottom: 2px solid #3b82f6; /* Ligne bleue TechPrecision */
-            padding-bottom: 20px;
+            margin-bottom: 15px !important; /* Réduit marge header */
+            border-bottom: 2px solid #3b82f6; 
+            padding-bottom: 10px !important;
         }
         .pdf-mode .pdf-value {
-            background-color: #f3f4f6; /* Gris très clair */
-            border-bottom: 1px solid #d1d5db; /* Soulignement léger */
-            padding: 6px 10px;
-            font-weight: 700; /* Gras pour les données saisies */
+            background-color: #f3f4f6;
+            border-bottom: 1px solid #d1d5db;
+            padding: 4px 8px; /* Padding réduit pour gain de place */
+            font-weight: 700;
             color: #111827;
             border-radius: 2px;
             margin-top: 2px;
-            font-size: 14px;
+            font-size: 13px; /* Police légèrement réduite */
         }
         .pdf-mode label {
             color: #6b7280;
-            font-size: 11px;
+            font-size: 10px; /* Label plus petit */
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 8px; /* Marge réduite */
             display: block;
-        }
-        
-        /* Helper pour cacher des éléments spécifiquement dans le PDF */
-        .hide-in-pdf {
-            display: none !important;
         }
     </style>
 </head>
@@ -113,26 +108,34 @@
 
     <!-- Conteneur du formulaire (initialement caché) -->
     <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden hidden" id="form-container">
-        <div class="p-8 md:p-10">
-            <!-- En-tête -->
-            <header id="form-header" class="text-center mb-10 pb-6 border-b border-gray-100">
-                 <div class="mx-auto mb-4 h-12 w-12 flex items-center justify-center bg-blue-600 text-white rounded-lg font-bold text-xl shadow-md">T</div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">TECHPRECISION</h1>
-                <h2 id="form-title" class="text-lg font-medium text-blue-600 mt-1 uppercase tracking-wider"></h2>
+        <div class="p-6 md:p-8"> <!-- Padding réduit globalement -->
+            <!-- En-tête Compact (Nouveau Design Gain de Place) -->
+            <header id="form-header" class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                 <!-- Logo Gauche -->
+                 <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-blue-600 text-white rounded-lg font-bold text-xl shadow-md">T</div>
+                 
+                 <!-- Titre Centré -->
+                 <div class="flex-grow text-center px-4">
+                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight leading-none">TECHPRECISION</h1>
+                    <h2 id="form-title" class="text-sm font-bold text-blue-600 mt-1 uppercase tracking-widest"></h2>
+                 </div>
+                 
+                 <!-- Spacer vide pour équilibrer le logo à droite -->
+                 <div class="w-12"></div>
             </header>
     
             <div id="form-body-wrapper">
                 <!-- Formulaire -->
-                <form id="support-form" class="space-y-6">
+                <form id="support-form" class="space-y-4"> <!-- Espacement vertical réduit (space-y-6 -> space-y-4) -->
                     <!-- Date et Informations Client -->
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                         <div class="md:col-span-4">
                             <label for="date" id="date-label" class="block text-sm font-medium text-gray-700 mb-1"></label>
-                            <input type="text" id="date" name="date" readonly class="w-full bg-slate-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5 text-gray-600">
+                            <input type="text" id="date" name="date" readonly class="w-full bg-slate-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 text-gray-600">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Civilité</label>
-                            <select id="civilite" name="civilite" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5">
+                            <select id="civilite" name="civilite" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2">
                                 <option>M.</option>
                                 <option>Mme</option>
                                 <option>Ste</option>
@@ -140,22 +143,22 @@
                         </div>
                         <div class="md:col-span-6">
                             <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom du client</label>
-                            <input type="text" id="nom" name="nom" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5" placeholder="Nom complet ou Société">
+                            <input type="text" id="nom" name="nom" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="Nom complet ou Société">
                         </div>
                     </div>
     
                     <div>
                         <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
-                        <input type="tel" id="telephone" name="telephone" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5" placeholder="06 96 XX XX XX">
+                        <input type="tel" id="telephone" name="telephone" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="06 96 XX XX XX">
                     </div>
     
                     <!-- Informations Matériel -->
-                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">Détails de l'appareil</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b pb-1">Détails de l'appareil</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="type_materiel" class="block text-sm font-medium text-gray-700 mb-1">Type de matériel</label>
-                                <select id="type_materiel" name="type_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5">
+                                <select id="type_materiel" name="type_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2">
                                     <option>Smartphone</option>
                                     <option>Tablette</option>
                                     <option>PC Portable</option>
@@ -167,11 +170,11 @@
                             </div>
                             <div>
                                 <label for="marque" class="block text-sm font-medium text-gray-700 mb-1">Marque et modèle</label>
-                                <input type="text" id="marque" name="marque" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5" placeholder="Ex: iPhone 13, Samsung S21, MacBook Air M1...">
+                                <input type="text" id="marque" name="marque" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="Ex: iPhone 13...">
                             </div>
                             <div class="md:col-span-2">
                                 <label for="etat_materiel" class="block text-sm font-medium text-gray-700 mb-1">État esthétique général</label>
-                                <select id="etat_materiel" name="etat_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5">
+                                <select id="etat_materiel" name="etat_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2">
                                     <option>Bon état général</option>
                                     <option>Usure normale (micro-rayures)</option>
                                     <option>Rayures visibles / Chocs légers</option>
@@ -185,50 +188,42 @@
                     <!-- Problème / Intervention -->
                     <div>
                         <label for="probleme" id="probleme-label" class="block text-sm font-medium text-gray-700 mb-1"></label>
-                        <textarea id="probleme" name="probleme" rows="4" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-3" placeholder="Description détaillée..."></textarea>
+                        <textarea id="probleme" name="probleme" rows="3" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="Description détaillée..."></textarea>
                     </div>
     
                     <!-- Ajout de Photos -->
-                    <div id="photos-section" class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <label class="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Photos de l'appareil (Optionnel)</label>
+                    <div id="photos-section" class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Photos (Optionnel)</label>
                         
-                        <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-100 transition-colors bg-white cursor-pointer" onclick="document.getElementById('file-upload').click()">
-                            <div class="space-y-1 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                        <div class="flex justify-center px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-100 transition-colors bg-white cursor-pointer" onclick="document.getElementById('file-upload').click()">
+                            <div class="space-y-1 text-center flex items-center space-x-2">
+                                <svg class="h-6 w-6 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <div class="flex text-sm text-gray-600 justify-center">
-                                    <span class="relative rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                        <span>Sélectionner des photos</span>
-                                        <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*,.heic,.heif">
-                                    </span>
-                                </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, HEIC jusqu'à 2 fichiers</p>
+                                <span class="text-sm text-blue-600 font-medium">Ajouter des photos</span>
+                                <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*,.heic,.heif">
                             </div>
                         </div>
-                        <div id="image-previews" class="mt-4 grid grid-cols-2 gap-4"></div>
+                        <div id="image-previews" class="mt-2 grid grid-cols-2 gap-4"></div>
                     </div>
     
                     <!-- Signature -->
                     <div class="break-inside-avoid">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Signature du client <span class="text-red-500">*</span></label>
-                        <div class="relative rounded-xl overflow-hidden border border-gray-300 shadow-sm">
-                            <canvas id="signature-pad" class="w-full h-48 bg-white cursor-crosshair block"></canvas>
-                            <div class="absolute top-0 right-0 p-2">
-                                <button type="button" id="clear-signature" class="bg-white/90 backdrop-blur border border-gray-200 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Signature du client <span class="text-red-500">*</span></label>
+                        <div class="relative rounded-xl overflow-hidden border border-gray-300 shadow-sm h-32"> <!-- Hauteur réduite h-32 -->
+                            <canvas id="signature-pad" class="w-full h-full bg-white cursor-crosshair block"></canvas>
+                            <div class="absolute top-0 right-0 p-1">
+                                <button type="button" id="clear-signature" class="bg-white/90 backdrop-blur border border-gray-200 text-gray-600 text-[10px] font-medium px-2 py-1 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
                                     Effacer
                                 </button>
-                            </div>
-                            <div class="absolute bottom-2 left-0 w-full text-center pointer-events-none opacity-30">
-                                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Zone de signature</p>
                             </div>
                         </div>
                     </div>
                 </form>
                 
                 <!-- Actions (Boutons) -->
-                <div id="error-container" class="text-left text-sm text-red-600 h-5 mt-4 font-medium pl-1"></div>
-                <div class="mt-4 pt-6 border-t border-gray-200">
+                <div id="error-container" class="text-left text-sm text-red-600 h-5 mt-2 font-medium pl-1"></div>
+                <div class="mt-2 pt-4 border-t border-gray-200">
                     <div class="flex justify-between items-center gap-4">
                         <button type="button" id="back-to-selection" class="btn-secondary w-full md:w-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -250,12 +245,9 @@
     
     <!-- Pied de page caché pour la génération PDF (Mentions légales) -->
     <div id="pdf-mentions" class="hidden">
-        <footer class="text-justify text-[10px] text-gray-500 mt-8 pt-4 border-t-2 border-gray-200 leading-normal">
-            <h4 class="font-bold mb-2 uppercase text-gray-700 text-xs">Conditions Générales de Service</h4>
-            <p class="mb-1.5"><strong>1. Données :</strong> Le client déclare avoir effectué une sauvegarde complète de ses données. TechPrecision décline toute responsabilité en cas de perte de données ou de logiciels durant l'intervention.</p>
-            <p class="mb-1.5"><strong>2. Garantie :</strong> Les réparations sont garanties 3 mois (pièces et main d'œuvre) hors casse, oxydation ou nouvelle panne.</p>
-            <p class="mb-1.5"><strong>3. Abandon :</strong> Tout appareil non réclamé sous 6 mois sera considéré comme abandonné et pourra être recyclé.</p>
-            <p><strong>4. Accord :</strong> La signature ci-dessus vaut acceptation du devis estimatif (si communiqué) et des conditions présentes, ainsi que la validation de l'état esthétique déclaré.</p>
+        <footer class="text-justify text-[9px] text-gray-500 mt-4 pt-2 border-t border-gray-300 leading-tight">
+            <p class="mb-1"><strong>Conditions :</strong> 1. Sauvegarde des données client obligatoire avant dépôt (aucune responsabilité de TechPrecision). 2. Garantie 3 mois panne identique (hors casse/oxydation). 3. Appareil recyclé si non réclamé sous 6 mois.</p>
+            <p><strong>Accord :</strong> La signature vaut acceptation des conditions, du devis et de l'état esthétique déclaré.</p>
         </footer>
     </div>
 
@@ -343,15 +335,15 @@
                 resetForm(); 
 
                 if (formType === 'prise-en-charge') {
-                    formTitle.textContent = 'Fiche de Prise en Charge';
-                    dateLabel.textContent = 'Date et Heure de dépôt';
-                    problemeLabel.textContent = 'Description de la panne / Demande client';
-                    problemeTextarea.placeholder = 'Ex: Écran fissuré, batterie ne tient pas la charge, récupération de données...';
+                    formTitle.textContent = 'FICHE DE PRISE EN CHARGE';
+                    dateLabel.textContent = 'Date dépôt';
+                    problemeLabel.textContent = 'Description panne';
+                    problemeTextarea.placeholder = 'Ex: Écran fissuré, batterie HS...';
                 } else if (formType === 'remise-client') {
-                    formTitle.textContent = 'Fiche de Restitution';
-                    dateLabel.textContent = 'Date et Heure de sortie';
-                    problemeLabel.textContent = 'Travaux effectués / Résultat des tests';
-                    problemeTextarea.placeholder = 'Ex: Remplacement bloc écran, tests tactiles OK, nettoyage complet...';
+                    formTitle.textContent = 'FICHE DE RESTITUTION';
+                    dateLabel.textContent = 'Date sortie';
+                    problemeLabel.textContent = 'Travaux effectués';
+                    problemeTextarea.placeholder = 'Ex: Remplacement écran, tests OK...';
                 }
 
                 selectionScreen.style.display = 'none';
@@ -390,8 +382,8 @@
                             previewWrapper.innerHTML = `
                                 <img src="${e.target.result}" class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all"></div>
-                                <button type="button" class="absolute top-2 right-2 bg-white text-red-500 rounded-full p-1.5 shadow-md hover:bg-red-50 transition transform hover:scale-110">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <button type="button" class="absolute top-1 right-1 bg-white text-red-500 rounded-full p-1 shadow-md hover:bg-red-50 transition transform hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
@@ -479,7 +471,6 @@
             document.getElementById('export-pdf').addEventListener('click', () => {
                 if (!validateForm()) return;
 
-                // Vérification de sécurité pour les librairies
                 if (!window.jspdf || !window.html2canvas) {
                     alert("Les outils PDF chargent encore. Réessayez dans 2 secondes.");
                     return;
@@ -496,7 +487,8 @@
                 renderContainer.classList.remove('hidden', 'shadow-2xl', 'rounded-xl', 'overflow-hidden');
                 renderContainer.classList.add('pdf-mode');
                 
-                renderContainer.querySelector('.p-8').classList.remove('p-8', 'md:p-10'); 
+                // Retirer padding du mode écran pour le PDF
+                renderContainer.querySelector('.p-6').classList.remove('p-6', 'md:p-8');
                 
                 const mentionsFooter = document.getElementById('pdf-mentions').cloneNode(true);
                 mentionsFooter.classList.remove('hidden');
@@ -545,25 +537,27 @@
                 if (hasSigned) {
                     const img = document.createElement('img');
                     img.src = canvas.toDataURL('image/png');
-                    img.className = 'w-full h-32 object-contain border-b border-gray-300';
+                    // Hauteur réduite pour le PDF
+                    img.className = 'w-full h-24 object-contain border-b border-gray-300';
                     clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
                 }
 
-                // 6. Gestion Photos
+                // 6. Gestion Photos (Version Réduite pour PDF)
                 const originalPreviews = previewsContainer.querySelectorAll('img');
                 const clonedPreviewsContainer = renderContainer.querySelector('#image-previews');
                 clonedPreviewsContainer.innerHTML = '';
-                clonedPreviewsContainer.className = 'mt-4 flex flex-wrap gap-4'; 
+                clonedPreviewsContainer.className = 'mt-2 flex flex-wrap gap-4'; 
                 
                 if (originalPreviews.length > 0) {
                      originalPreviews.forEach(img => {
                         const previewWrapper = document.createElement('div');
                         previewWrapper.className = 'border border-gray-300 rounded p-1 bg-white';
-                        previewWrapper.style.width = '48%'; 
+                        previewWrapper.style.width = '45%'; 
                         
                         const newImg = document.createElement('img');
                         newImg.src = img.src;
-                        newImg.className = 'w-full object-contain max-h-64'; 
+                        // HAUTEUR REDUITE ICI (max-h-32 = ~128px)
+                        newImg.className = 'w-full object-contain max-h-32'; 
                         
                         previewWrapper.appendChild(newImg);
                         clonedPreviewsContainer.appendChild(previewWrapper);
@@ -571,13 +565,14 @@
                 } else {
                     const noPhoto = document.createElement('p');
                     noPhoto.textContent = "Aucune photo jointe.";
-                    noPhoto.className = "text-sm text-gray-400 italic";
+                    noPhoto.className = "text-xs text-gray-400 italic";
                     clonedPreviewsContainer.appendChild(noPhoto);
                 }
 
                 window.scrollTo(0,0);
                 
-                renderContainer.style.paddingBottom = "50px";
+                // Padding bottom moins agressif
+                renderContainer.style.paddingBottom = "10px";
 
                 html2canvas(renderContainer, { 
                     scale: 2, 
