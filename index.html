@@ -1,637 +1,446 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechPrecision - Gestion des fiches</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>TECHPRECISION - Gestion Atelier</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
+        :root {
+            --primary: #0056b3;
+            --secondary: #f4f4f4;
+            --dark: #333;
+            --danger: #dc3545;
+            --success: #28a745;
         }
-        .aspect-a7 {
-            aspect-ratio: 1 / 1;
-        }
-        #form-container {
-            display: none;
-        }
-        .btn-primary {
-            @apply bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out flex items-center justify-center space-x-2;
-        }
-        .btn-secondary {
-            @apply bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-150 ease-in-out flex items-center justify-center space-x-2;
-        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: var(--secondary); color: var(--dark); }
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 90vh; }
+
+        /* HEADER */
+        .header-logo { text-align: center; margin-bottom: 30px; }
+        .header-logo img { max-height: 80px; }
+        h1, h2 { text-align: center; color: var(--primary); margin-top: 5px; }
+
+        /* NAVIGATION (ÉCRANS) */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* MENU ACCUEIL */
+        .home-menu { display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 40px; }
+        .btn-big { padding: 25px 40px; font-size: 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; max-width: 400px; text-decoration: none; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .btn-big:hover { background: #004494; transform: scale(1.02); }
+        .btn-return { background-color: var(--success); }
+        .btn-return:hover { background-color: #218838; }
+
+        /* FORMULAIRES */
+        .back-link { cursor: pointer; color: #666; text-decoration: none; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
+        textarea { resize: vertical; height: 80px; font-family: inherit; }
+
+        /* CANVAS SIGNATURE */
+        .canvas-container { border: 2px dashed #ccc; background: #fff; position: relative; width: 100%; height: 200px; touch-action: none; border-radius: 4px; }
+        canvas { width: 100%; height: 100%; display: block; }
+
+        /* BOUTONS ACTIONS */
+        .actions { display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; color: white; font-weight: bold; }
+        .btn-primary { background: var(--primary); }
+        .btn-secondary { background: #6c757d; }
+        .btn-danger { background: var(--danger); }
+        .btn-small { padding: 8px 12px; font-size: 0.8rem; width: auto; flex: none; margin-top: 5px; }
+
+        /* PREVIEW PHOTOS */
+        #photoPreview { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .preview-img { height: 80px; border: 1px solid #ddd; border-radius: 4px; object-fit: cover; }
+
+        /* UTILITAIRES */
+        .hidden { display: none; }
         
-        /* Styles spécifiques pour le PDF invisible (Ghost container) */
-        .pdf-mode {
-            background-color: white !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            padding: 30px !important; /* Marges papier réduites */
-            max-width: none !important;
-            width: 794px !important; /* Largeur A4 en pixels (96dpi) */
-            min-height: 1123px !important; /* Hauteur A4 min */
-            margin: 0 !important;
-            color: #000 !important;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -1000;
-        }
-        .pdf-mode header {
-            margin-bottom: 15px !important; /* Réduit marge header */
-            border-bottom: 2px solid #3b82f6; 
-            padding-bottom: 10px !important;
-        }
-        .pdf-mode .pdf-value {
-            background-color: #f3f4f6;
-            border-bottom: 1px solid #d1d5db;
-            padding: 4px 8px; /* Padding réduit pour gain de place */
-            font-weight: 700;
-            color: #111827;
-            border-radius: 2px;
-            margin-top: 2px;
-            font-size: 13px; /* Police légèrement réduite */
-        }
-        .pdf-mode label {
-            color: #6b7280;
-            font-size: 10px; /* Label plus petit */
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            margin-top: 8px; /* Marge réduite */
-            display: block;
+        /* Pour l'impression papier directe via navigateur (optionnel) */
+        @media print {
+            .actions, .back-link, input[type="file"], #clearSig { display: none; }
+            .container { box-shadow: none; border: none; }
         }
     </style>
 </head>
+<body>
 
-<body class="p-4 sm:p-6 md:p-8">
+<div class="container">
+    <div class="header-logo">
+        <img src="logo.png" alt="TECHPRECISION Logo" id="companyLogo" onerror="this.style.display='none'">
+        <h1>TECHPRECISION</h1>
+    </div>
 
-    <!-- Screen de sélection -->
-    <div id="selection-screen" class="max-w-2xl mx-auto text-center">
-        <header class="mb-10">
-            <div class="mx-auto mb-4 h-16 w-16 flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-xl shadow-lg font-bold text-3xl">T</div>
-            <h1 class="text-3xl font-bold text-gray-800">TECHPRECISION</h1>
-            <p class="text-gray-600 mt-2">Gestion des fiches - Veuillez sélectionner un type de fiche</p>
-        </header>
-        <div class="bg-white rounded-xl shadow-xl p-8 space-y-6">
-            <button id="btn-prise-en-charge" class="w-full text-left p-6 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 transition-all duration-200 flex items-center space-x-5 group">
-                <div class="bg-white border border-blue-100 text-blue-600 p-4 rounded-full shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 group-hover:text-blue-700">Fiche de prise en charge</h2>
-                    <p class="text-gray-500 text-sm mt-1">Entrée atelier : enregistrement du matériel et de la panne.</p>
-                </div>
-            </button>
-            <button id="btn-remise-client" class="w-full text-left p-6 bg-slate-50 hover:bg-green-50 hover:border-green-300 rounded-xl border border-slate-200 transition-all duration-200 flex items-center space-x-5 group">
-                 <div class="bg-white border border-green-100 text-green-600 p-4 rounded-full shadow-sm group-hover:bg-green-600 group-hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 group-hover:text-green-700">Fiche de remise client</h2>
-                    <p class="text-gray-500 text-sm mt-1">Sortie atelier : validation des réparations et restitution.</p>
-                </div>
-            </button>
+    <div id="homeScreen" class="screen active">
+        <h2 style="color: #666; font-size: 1.2rem; font-weight: normal;">Gestion d'atelier</h2>
+        <div class="home-menu">
+            <button onclick="openForm('prise_en_charge')" class="btn-big">Prise en charge matériel</button>
+            <button onclick="openForm('remise_materiel')" class="btn-big btn-return">Remise matériel</button>
         </div>
     </div>
 
+    <div id="formScreen" class="screen">
+        <a onclick="goHome()" class="back-link">&larr; Retour accueil</a>
+        <h2 id="formTitle">Formulaire</h2>
 
-    <!-- Conteneur du formulaire (initialement caché) -->
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden hidden" id="form-container">
-        <div class="p-6 md:p-8"> <!-- Padding réduit globalement -->
-            <!-- En-tête Compact (Nouveau Design Gain de Place) -->
-            <header id="form-header" class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                 <!-- Logo Gauche -->
-                 <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-blue-600 text-white rounded-lg font-bold text-xl shadow-md">T</div>
-                 
-                 <!-- Titre Centré -->
-                 <div class="flex-grow text-center px-4">
-                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight leading-none">TECHPRECISION</h1>
-                    <h2 id="form-title" class="text-sm font-bold text-blue-600 mt-1 uppercase tracking-widest"></h2>
-                 </div>
-                 
-                 <!-- Spacer vide pour équilibrer le logo à droite -->
-                 <div class="w-12"></div>
-            </header>
-    
-            <div id="form-body-wrapper">
-                <!-- Formulaire -->
-                <form id="support-form" class="space-y-4"> <!-- Espacement vertical réduit (space-y-6 -> space-y-4) -->
-                    <!-- Date et Informations Client -->
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                        <div class="md:col-span-4">
-                            <label for="date" id="date-label" class="block text-sm font-medium text-gray-700 mb-1"></label>
-                            <input type="text" id="date" name="date" readonly class="w-full bg-slate-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2 text-gray-600">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Civilité</label>
-                            <select id="civilite" name="civilite" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2">
-                                <option>M.</option>
-                                <option>Mme</option>
-                                <option>Ste</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-6">
-                            <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom du client</label>
-                            <input type="text" id="nom" name="nom" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="Nom complet ou Société">
-                        </div>
-                    </div>
-    
-                    <div>
-                        <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
-                        <input type="tel" id="telephone" name="telephone" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="06 96 XX XX XX">
-                    </div>
-    
-                    <!-- Informations Matériel -->
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 border-b pb-1">Détails de l'appareil</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="type_materiel" class="block text-sm font-medium text-gray-700 mb-1">Type de matériel</label>
-                                <select id="type_materiel" name="type_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2">
-                                    <option>Smartphone</option>
-                                    <option>Tablette</option>
-                                    <option>PC Portable</option>
-                                    <option>PC Fixe / Tour</option>
-                                    <option>Console de jeu</option>
-                                    <option>Montre connectée</option>
-                                    <option>Autre</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="marque" class="block text-sm font-medium text-gray-700 mb-1">Marque et modèle</label>
-                                <input type="text" id="marque" name="marque" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="Ex: iPhone 13...">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="etat_materiel" class="block text-sm font-medium text-gray-700 mb-1">État esthétique général</label>
-                                <select id="etat_materiel" name="etat_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2">
-                                    <option>Bon état général</option>
-                                    <option>Usure normale (micro-rayures)</option>
-                                    <option>Rayures visibles / Chocs légers</option>
-                                    <option>Mauvais état / Cassé</option>
-                                    <option>Non vérifiable (appareil ne s'allume pas)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <!-- Problème / Intervention -->
-                    <div>
-                        <label for="probleme" id="probleme-label" class="block text-sm font-medium text-gray-700 mb-1"></label>
-                        <textarea id="probleme" name="probleme" rows="3" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2" placeholder="Description détaillée..."></textarea>
-                    </div>
-    
-                    <!-- Ajout de Photos -->
-                    <div id="photos-section" class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Photos (Optionnel)</label>
-                        
-                        <div class="flex justify-center px-4 py-3 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-100 transition-colors bg-white cursor-pointer" onclick="document.getElementById('file-upload').click()">
-                            <div class="space-y-1 text-center flex items-center space-x-2">
-                                <svg class="h-6 w-6 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                                <span class="text-sm text-blue-600 font-medium">Ajouter des photos</span>
-                                <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*,.heic,.heif">
-                            </div>
-                        </div>
-                        <div id="image-previews" class="mt-2 grid grid-cols-2 gap-4"></div>
-                    </div>
-    
-                    <!-- Signature -->
-                    <div class="break-inside-avoid">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Signature du client <span class="text-red-500">*</span></label>
-                        <div class="relative rounded-xl overflow-hidden border border-gray-300 shadow-sm h-32"> <!-- Hauteur réduite h-32 -->
-                            <canvas id="signature-pad" class="w-full h-full bg-white cursor-crosshair block"></canvas>
-                            <div class="absolute top-0 right-0 p-1">
-                                <button type="button" id="clear-signature" class="bg-white/90 backdrop-blur border border-gray-200 text-gray-600 text-[10px] font-medium px-2 py-1 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
-                                    Effacer
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-                
-                <!-- Actions (Boutons) -->
-                <div id="error-container" class="text-left text-sm text-red-600 h-5 mt-2 font-medium pl-1"></div>
-                <div class="mt-2 pt-4 border-t border-gray-200">
-                    <div class="flex justify-between items-center gap-4">
-                        <button type="button" id="back-to-selection" class="btn-secondary w-full md:w-auto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                            </svg>
-                            <span>Retour</span>
-                        </button>
-                        <button type="button" id="export-pdf" class="btn-primary w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                               <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                             </svg>
-                            <span>Valider & PDF</span>
-                        </button>
-                    </div>
+        <form id="appForm">
+            <div class="form-group">
+                <label>Date du jour</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label>Nom du Client</label>
+                <input type="text" id="clientName" required placeholder="Nom Prénom">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="phone" maxlength="10" required placeholder="0696..." pattern="\d{0,10}">
+            </div>
+            <div class="form-group">
+                <label>Type de matériel</label>
+                <select id="deviceType" required>
+                    <option value="PC Portable">PC Portable</option>
+                    <option value="PC Fixe">PC Fixe</option>
+                    <option value="Console de jeu">Console de jeu</option>
+                    <option value="Tablette">Tablette</option>
+                    <option value="Smartphone">Smartphone</option>
+                    <option value="Autre">Autre</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Modèle</label>
+                <input type="text" id="model" placeholder="Ex: HP Pavilion, PS5...">
+            </div>
+
+            <div id="section-intake" class="hidden">
+                <div class="form-group">
+                    <label>État général</label>
+                    <textarea id="condition" placeholder="Bon état, rayures, manque vis..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Problème constaté</label>
+                    <textarea id="problem" placeholder="Ne s'allume pas, écran cassé..."></textarea>
                 </div>
             </div>
-        </div>
+
+            <div id="section-return" class="hidden">
+                <div class="form-group">
+                    <label>Réf. Prise en charge</label>
+                    <input type="text" id="refIntake" placeholder="N° Dossier ou Date dépôt">
+                </div>
+                <div class="form-group">
+                    <label>Travaux effectués / Commentaires</label>
+                    <textarea id="workDone" placeholder="Remplacement disque dur, nettoyage..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Photos (Max 2)</label>
+                <input type="file" id="photoInput" accept="image/*" multiple capture="environment">
+                <div id="photoPreview"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Signature du client</label>
+                <div class="canvas-container">
+                    <canvas id="sigCanvas"></canvas>
+                </div>
+                <button type="button" id="clearSig" class="btn btn-secondary btn-small">Effacer signature</button>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Générer PDF</button>
+                <button type="button" onclick="resetForm()" class="btn btn-danger">Réinitialiser</button>
+            </div>
+        </form>
     </div>
-    
-    <!-- Pied de page caché pour la génération PDF (Mentions légales) -->
-    <div id="pdf-mentions" class="hidden">
-        <footer class="text-justify text-[9px] text-gray-500 mt-4 pt-2 border-t border-gray-300 leading-tight">
-            <p class="mb-1"><strong>Conditions :</strong> 1. Sauvegarde des données client obligatoire avant dépôt (aucune responsabilité de TechPrecision). 2. Garantie 3 mois panne identique (hors casse/oxydation). 3. Appareil recyclé si non réclamé sous 6 mois.</p>
-            <p><strong>Accord :</strong> La signature vaut acceptation des conditions, du devis et de l'état esthétique déclaré.</p>
-        </footer>
-    </div>
+</div>
 
+<script>
+    // --- VARIABLES GLOBALES ---
+    const { jsPDF } = window.jspdf;
+    let currentType = ''; // 'prise_en_charge' ou 'remise_materiel'
+    let uploadedPhotos = []; // Stocke les images en base64
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- Global Variables ---
-            const selectionScreen = document.getElementById('selection-screen');
-            const formContainer = document.getElementById('form-container');
-            const btnPriseEnCharge = document.getElementById('btn-prise-en-charge');
-            const btnRemiseClient = document.getElementById('btn-remise-client');
-            const btnBackToSelection = document.getElementById('back-to-selection');
-            
-            const supportForm = document.getElementById('support-form');
-            const dateField = document.getElementById('date');
-            const fileInput = document.getElementById('file-upload');
-            const previewsContainer = document.getElementById('image-previews');
-            const canvas = document.getElementById('signature-pad');
-            const ctx = canvas.getContext('2d');
+    // --- NAVIGATION ---
+    function goHome() {
+        document.getElementById('homeScreen').classList.add('active');
+        document.getElementById('formScreen').classList.remove('active');
+        resetFormData();
+    }
 
-            const formTitle = document.getElementById('form-title');
-            const dateLabel = document.getElementById('date-label');
-            const problemeLabel = document.getElementById('probleme-label');
-            const problemeTextarea = document.getElementById('probleme');
-            
-            let currentFormType = ''; 
-            let uploadedFiles = [];
-            let drawing = false;
-            let lastPos = { x: 0, y: 0 };
-            let hasSigned = false;
+    function openForm(type) {
+        currentType = type;
+        document.getElementById('homeScreen').classList.remove('active');
+        document.getElementById('formScreen').classList.add('active');
+        
+        // Configurer le titre et les champs visibles
+        const titleEl = document.getElementById('formTitle');
+        const intakeSec = document.getElementById('section-intake');
+        const returnSec = document.getElementById('section-return');
+        const problemField = document.getElementById('problem');
 
-            // --- Fonctions Utilitaires ---
+        // Date du jour par défaut
+        document.getElementById('date').valueAsDate = new Date();
 
-            function setTodayDate() {
-                const today = new Date();
-                dateField.value = today.toLocaleDateString('fr-FR', {
-                    day: 'numeric', month: 'long', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
-            }
+        if (type === 'prise_en_charge') {
+            titleEl.innerText = "Fiche Prise en Charge";
+            intakeSec.classList.remove('hidden');
+            returnSec.classList.add('hidden');
+            problemField.setAttribute('required', 'required'); // Obligatoire
+        } else {
+            titleEl.innerText = "Fiche Remise Matériel";
+            intakeSec.classList.add('hidden');
+            returnSec.classList.remove('hidden');
+            problemField.removeAttribute('required');
+        }
+        
+        resizeCanvas();
+    }
 
-            function resetForm() {
-                supportForm.reset();
-                previewsContainer.innerHTML = '';
-                uploadedFiles = [];
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                hasSigned = false;
-                setTodayDate();
-                document.getElementById('error-container').textContent = '';
-                supportForm.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
-            }
-            
-            function validateForm() {
-                const requiredFields = supportForm.querySelectorAll('[required]');
-                const errorContainer = document.getElementById('error-container');
-                let allValid = true;
-                
-                errorContainer.textContent = '';
-                requiredFields.forEach(field => field.classList.remove('border-red-500'));
+    // --- GESTION PHOTOS ---
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        const files = e.target.files;
+        const previewContainer = document.getElementById('photoPreview');
+        
+        if (files.length + uploadedPhotos.length > 2) {
+            alert("Maximum 2 photos au total.");
+            this.value = ''; 
+            return;
+        }
 
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        allValid = false;
-                        field.classList.add('border-red-500');
-                    }
-                });
-
-                // Validation signature
-                const canvasContainer = canvas.parentElement;
-                canvasContainer.classList.remove('ring-2', 'ring-red-500');
-                if (!hasSigned) {
-                    allValid = false;
-                    canvasContainer.classList.add('ring-2', 'ring-red-500');
-                }
-
-                if (!allValid) {
-                    errorContainer.textContent = "Merci de compléter les champs obligatoires et de signer.";
-                    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return allValid;
-            }
-
-            function setupForm(formType) {
-                currentFormType = formType;
-                resetForm(); 
-
-                if (formType === 'prise-en-charge') {
-                    formTitle.textContent = 'FICHE DE PRISE EN CHARGE';
-                    dateLabel.textContent = 'Date dépôt';
-                    problemeLabel.textContent = 'Description panne';
-                    problemeTextarea.placeholder = 'Ex: Écran fissuré, batterie HS...';
-                } else if (formType === 'remise-client') {
-                    formTitle.textContent = 'FICHE DE RESTITUTION';
-                    dateLabel.textContent = 'Date sortie';
-                    problemeLabel.textContent = 'Travaux effectués';
-                    problemeTextarea.placeholder = 'Ex: Remplacement écran, tests OK...';
-                }
-
-                selectionScreen.style.display = 'none';
-                formContainer.classList.remove('hidden');
-                window.scrollTo(0, 0);
-                setTimeout(resizeCanvas, 100); 
-            }
-
-            // --- Initialisation & Event Listeners ---
-
-            setTodayDate();
-
-            btnPriseEnCharge.addEventListener('click', () => setupForm('prise-en-charge'));
-            btnRemiseClient.addEventListener('click', () => setupForm('remise-client'));
-            btnBackToSelection.addEventListener('click', () => {
-                formContainer.classList.add('hidden');
-                selectionScreen.style.display = 'block';
-                currentFormType = '';
-            });
-
-            // Gestion de l'upload d'images
-            fileInput.addEventListener('change', (event) => {
-                const files = Array.from(event.target.files);
-                handleFiles(files);
-            });
-            
-            function handleFiles(files) {
-                files.forEach(file => {
-                    const isImage = file.type.startsWith('image/') || file.name.toLowerCase().endsWith('.heic');
-                    if (uploadedFiles.length < 2 && isImage) {
-                        uploadedFiles.push(file);
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            const previewWrapper = document.createElement('div');
-                            previewWrapper.className = 'relative w-full aspect-a7 border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white group';
-                            previewWrapper.innerHTML = `
-                                <img src="${e.target.result}" class="w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all"></div>
-                                <button type="button" class="absolute top-1 right-1 bg-white text-red-500 rounded-full p-1 shadow-md hover:bg-red-50 transition transform hover:scale-110">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            `;
-                            previewsContainer.appendChild(previewWrapper);
-                            
-                            previewWrapper.querySelector('button').addEventListener('click', () => {
-                                const index = uploadedFiles.indexOf(file);
-                                if (index > -1) {
-                                    uploadedFiles.splice(index, 1);
-                                }
-                                previewsContainer.removeChild(previewWrapper);
-                            });
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-
-            // --- Gestion Signature ---
-            function resizeCanvas() {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                const oldContent = hasSigned ? canvas.toDataURL() : null;
-                
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                ctx.scale(ratio, ratio);
-                
-                if (oldContent) {
-                    const img = new Image();
-                    img.src = oldContent;
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
-                    }
-                }
-
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 2.5; 
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-            }
-            window.addEventListener('resize', resizeCanvas);
-
-            function getMousePos(canvasDom, mouseEvent) {
-                const rect = canvasDom.getBoundingClientRect();
-                return { x: mouseEvent.clientX - rect.left, y: mouseEvent.clientY - rect.top };
-            }
-            
-            function getTouchPos(canvasDom, touchEvent) {
-                const rect = canvasDom.getBoundingClientRect();
-                return { x: touchEvent.touches[0].clientX - rect.left, y: touchEvent.touches[0].clientY - rect.top };
-            }
-
-            function draw(pos) {
-                if (!drawing) return;
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-                lastPos = pos;
-                hasSigned = true;
-                canvas.parentElement.classList.remove('ring-2', 'ring-red-500');
-            }
-            
-            function startDraw(pos) {
-                drawing = true;
-                lastPos = pos;
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            }
-
-            canvas.addEventListener('mousedown', (e) => startDraw(getMousePos(canvas, e)));
-            canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
-            canvas.addEventListener('mousemove', (e) => draw(getMousePos(canvas, e)));
-            
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(getTouchPos(canvas, e)); });
-            canvas.addEventListener('touchend', (e) => { e.preventDefault(); drawing = false; ctx.beginPath(); });
-            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(getTouchPos(canvas, e)); });
-
-            document.getElementById('clear-signature').addEventListener('click', () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                hasSigned = false;
-            });
-            
-            // --- Génération PDF ---
-            
-            document.getElementById('export-pdf').addEventListener('click', () => {
-                if (!validateForm()) return;
-
-                if (!window.jspdf || !window.html2canvas) {
-                    alert("Les outils PDF chargent encore. Réessayez dans 2 secondes.");
-                    return;
-                }
-
-                const { jsPDF } = window.jspdf;
-
-                // 1. Cloner
-                const formToExport = document.getElementById('form-container');
-                const renderContainer = formToExport.cloneNode(true);
-                
-                // 2. Mode PDF
-                renderContainer.id = 'pdf-render-zone'; 
-                renderContainer.classList.remove('hidden', 'shadow-2xl', 'rounded-xl', 'overflow-hidden');
-                renderContainer.classList.add('pdf-mode');
-                
-                // Retirer padding du mode écran pour le PDF
-                renderContainer.querySelector('.p-6').classList.remove('p-6', 'md:p-8');
-                
-                const mentionsFooter = document.getElementById('pdf-mentions').cloneNode(true);
-                mentionsFooter.classList.remove('hidden');
-                renderContainer.querySelector('#form-body-wrapper').appendChild(mentionsFooter);
-
-                document.body.appendChild(renderContainer);
-
-                // 3. Masquer éléments interactifs
-                const elementsToHide = [
-                    ...renderContainer.querySelectorAll('button'),
-                    ...renderContainer.querySelectorAll('#error-container'),
-                    renderContainer.querySelector('#file-upload') ? renderContainer.querySelector('#file-upload').closest('.cursor-pointer') : null,
-                    renderContainer.querySelector('.pointer-events-none') 
-                ];
-                elementsToHide.forEach(el => {
-                    if(el) el.style.display = 'none';
-                });
-
-                // 4. Conversion Inputs -> Texte propre
-                const fieldsToConvert = renderContainer.querySelectorAll('input, select, textarea');
-
-                fieldsToConvert.forEach(field => {
-                    const textValue = document.createElement('div');
-                    textValue.className = 'pdf-value';
-                    
-                    const originalField = document.getElementById(field.id); 
-                    let displayValue = '';
-
-                    if (field.tagName === 'SELECT') {
-                        displayValue = originalField.options[originalField.selectedIndex].text;
-                    } else {
-                        displayValue = originalField.value;
-                    }
-
-                    if (!displayValue || displayValue.trim() === '') displayValue = '-';
-
-                    textValue.textContent = displayValue;
-                    textValue.style.whiteSpace = 'pre-wrap'; 
-                    
-                    field.style.display = 'none';
-                    field.parentNode.insertBefore(textValue, field);
-                });
-                
-                // 5. Gestion Signature (Image)
-                const clonedCanvas = renderContainer.querySelector('#signature-pad');
-                if (hasSigned) {
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Stocker Base64
+                if(uploadedPhotos.length < 2) {
+                    uploadedPhotos.push(event.target.result);
+                    // Afficher aperçu
                     const img = document.createElement('img');
-                    img.src = canvas.toDataURL('image/png');
-                    // Hauteur réduite pour le PDF
-                    img.className = 'w-full h-24 object-contain border-b border-gray-300';
-                    clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
+                    img.src = event.target.result;
+                    img.className = 'preview-img';
+                    previewContainer.appendChild(img);
                 }
-
-                // 6. Gestion Photos (Version Réduite pour PDF)
-                const originalPreviews = previewsContainer.querySelectorAll('img');
-                const clonedPreviewsContainer = renderContainer.querySelector('#image-previews');
-                clonedPreviewsContainer.innerHTML = '';
-                clonedPreviewsContainer.className = 'mt-2 flex flex-wrap gap-4'; 
-                
-                if (originalPreviews.length > 0) {
-                     originalPreviews.forEach(img => {
-                        const previewWrapper = document.createElement('div');
-                        previewWrapper.className = 'border border-gray-300 rounded p-1 bg-white';
-                        previewWrapper.style.width = '45%'; 
-                        
-                        const newImg = document.createElement('img');
-                        newImg.src = img.src;
-                        // HAUTEUR REDUITE ICI (max-h-32 = ~128px)
-                        newImg.className = 'w-full object-contain max-h-32'; 
-                        
-                        previewWrapper.appendChild(newImg);
-                        clonedPreviewsContainer.appendChild(previewWrapper);
-                    });
-                } else {
-                    const noPhoto = document.createElement('p');
-                    noPhoto.textContent = "Aucune photo jointe.";
-                    noPhoto.className = "text-xs text-gray-400 italic";
-                    clonedPreviewsContainer.appendChild(noPhoto);
-                }
-
-                window.scrollTo(0,0);
-                
-                // Padding bottom moins agressif
-                renderContainer.style.paddingBottom = "10px";
-
-                html2canvas(renderContainer, { 
-                    scale: 2, 
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    scrollY: -window.scrollY, 
-                    windowHeight: document.documentElement.offsetHeight + 500 
-                })
-                .then(canvas => {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                    
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    
-                    const imgProps = pdf.getImageProperties(imgData);
-                    let printHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                    
-                    if (printHeight > pdfHeight) {
-                        const scaleFactor = pdfHeight / printHeight;
-                        const printWidth = pdfWidth * scaleFactor;
-                        const marginX = (pdfWidth - printWidth) / 2; 
-                        pdf.addImage(imgData, 'JPEG', marginX, 0, printWidth, pdfHeight);
-                    } else {
-                        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, printHeight);
-                    }
-
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                    const clientName = document.getElementById('nom').value.replace(/[^a-z0-9]/gi, '_').substring(0, 15) || 'client';
-                    const filePrefix = currentFormType === 'prise-en-charge' ? 'PEC' : 'RESTITUTION';
-                    const filename = `${filePrefix}_${clientName}.pdf`;
-
-                    if (isIOS) {
-                        window.open(pdf.output('bloburl'), '_blank');
-                    } else {
-                        pdf.save(filename);
-                    }
-                })
-                .catch(err => {
-                    console.error("Erreur PDF:", err);
-                    alert("Erreur lors de la génération du PDF.");
-                })
-                .finally(() => {
-                    if(document.body.contains(renderContainer)) {
-                        document.body.removeChild(renderContainer);
-                    }
-                    // Reset UI
-                    formContainer.classList.add('hidden');
-                    selectionScreen.style.display = 'block';
-                    currentFormType = '';
-                });
-            });
-            
-            supportForm.querySelectorAll('[required]').forEach(field => {
-                field.addEventListener('input', () => {
-                    if (field.value.trim()) field.classList.remove('border-red-500');
-                });
-            });
+            };
+            reader.readAsDataURL(file);
         });
-    </script>
+    });
+
+    // --- GESTION SIGNATURE (CANVAS) ---
+    const canvas = document.getElementById('sigCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    function resizeCanvas() {
+        // Ajuster la résolution interne du canvas à sa taille d'affichage
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000';
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    // Événements Souris
+    canvas.addEventListener('mousedown', (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
+    canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); });
+    canvas.addEventListener('mouseup', () => { isDrawing = false; });
+    // Événements Tactiles
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); }, {passive: false});
+    canvas.addEventListener('touchend', () => { isDrawing = false; });
+
+    document.getElementById('clearSig').addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // --- GÉNÉRATION PDF (LOGIQUE CŒUR) ---
+    document.getElementById('appForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // 1. Récupération des données
+        const date = document.getElementById('date').value;
+        const clientName = document.getElementById('clientName').value;
+        const phone = document.getElementById('phone').value;
+        const deviceType = document.getElementById('deviceType').value;
+        const model = document.getElementById('model').value;
+        
+        // Spécifiques
+        const condition = document.getElementById('condition').value;
+        const problem = document.getElementById('problem').value;
+        const refIntake = document.getElementById('refIntake').value;
+        const workDone = document.getElementById('workDone').value;
+
+        // Signature
+        const signatureImg = canvas.toDataURL('image/png');
+
+        // 2. Initialisation jsPDF
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
+        const margin = 20;
+        const contentWidth = pageWidth - (margin * 2);
+        let currentY = 20;
+
+        // --- EN-TÊTE ---
+        const logoEl = document.getElementById('companyLogo');
+        // Vérification que le logo est bien chargé pour l'intégrer au PDF
+        if (logoEl && logoEl.complete && logoEl.naturalHeight !== 0) {
+            const c = document.createElement('canvas');
+            c.width = logoEl.naturalWidth;
+            c.height = logoEl.naturalHeight;
+            // Utilisation de 'image/png' pour garder la transparence
+            c.getContext('2d').drawImage(logoEl, 0, 0);
+            const logoBase64 = c.toDataURL('image/png'); 
+            
+            // Intégration PNG dans le PDF
+            doc.addImage(logoBase64, 'PNG', margin, currentY, 30, 20); 
+        } else {
+            // Fallback si logo manquant
+            doc.rect(margin, currentY, 30, 20);
+            doc.setFontSize(8);
+            doc.text("LOGO", margin + 5, currentY + 12);
+        }
+
+        // Titre Entreprise
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.text("TECHPRECISION", margin + 40, currentY + 10);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text("Service de réparation informatique", margin + 40, currentY + 18);
+
+        currentY += 35;
+
+        // Titre Document
+        doc.setLineWidth(0.5);
+        doc.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 10;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        const docTitle = currentType === 'prise_en_charge' ? "FICHE DE PRISE EN CHARGE" : "FICHE DE REMISE MATERIEL";
+        doc.text(docTitle, pageWidth / 2, currentY, { align: "center" });
+        currentY += 15;
+
+        // --- INFO CLIENT (2 colonnes) ---
+        doc.setFontSize(10);
+        const col1X = margin;
+        const col2X = margin + 90;
+        
+        const printField = (label, val, x, y) => {
+            doc.setFont("helvetica", "bold");
+            doc.text(label + " :", x, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(val || "-", x + 35, y);
+        };
+
+        printField("Date", date, col1X, currentY);
+        printField("Matériel", deviceType, col2X, currentY);
+        currentY += 8;
+
+        printField("Client", clientName, col1X, currentY);
+        printField("Modèle", model, col2X, currentY);
+        currentY += 8;
+
+        printField("Téléphone", phone, col1X, currentY);
+        if (currentType === 'remise_materiel') {
+            printField("Réf. Dossier", refIntake, col2X, currentY);
+        }
+        currentY += 15;
+
+        // --- DÉTAILS TECHNIQUES ---
+        doc.setDrawColor(200);
+        doc.rect(margin, currentY, contentWidth, 60); 
+        let textY = currentY + 8;
+
+        if (currentType === 'prise_en_charge') {
+            doc.setFont("helvetica", "bold");
+            doc.text("État général :", margin + 2, textY);
+            doc.setFont("helvetica", "normal");
+            const splitCondition = doc.splitTextToSize(condition, contentWidth - 40);
+            doc.text(splitCondition, margin + 35, textY);
+            
+            textY += 15;
+            
+            doc.setFont("helvetica", "bold");
+            doc.text("Problème :", margin + 2, textY);
+            doc.setFont("helvetica", "normal");
+            const splitProblem = doc.splitTextToSize(problem, contentWidth - 35);
+            doc.text(splitProblem, margin + 35, textY);
+        } else {
+            doc.setFont("helvetica", "bold");
+            doc.text("Travaux effectués / Commentaires :", margin + 2, textY);
+            textY += 8;
+            doc.setFont("helvetica", "normal");
+            const splitWork = doc.splitTextToSize(workDone, contentWidth - 10);
+            doc.text(splitWork, margin + 5, textY);
+        }
+
+        currentY += 70;
+
+        // --- PHOTOS (2 max) ---
+        if (uploadedPhotos.length > 0) {
+            doc.setFont("helvetica", "bold");
+            doc.text("Photos du matériel :", margin, currentY);
+            currentY += 5;
+            
+            let photoX = margin;
+            uploadedPhotos.forEach(photoBase64 => {
+                doc.addImage(photoBase64, 'JPEG', photoX, currentY, 70, 50);
+                photoX += 75;
+            });
+            currentY += 55;
+        } else {
+            currentY += 10;
+        }
+
+        // --- SIGNATURE ---
+        doc.setLineWidth(0.2);
+        doc.line(margin, currentY, pageWidth - margin, currentY);
+        currentY += 10;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Signature du client :", pageWidth - margin - 60, currentY);
+        
+        if (signatureImg) {
+             doc.addImage(signatureImg, 'PNG', pageWidth - margin - 60, currentY + 5, 50, 25);
+        }
+
+        // --- FOOTER ---
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text(`Document généré par TECHPRECISION - ${new Date().toLocaleString()}`, margin, 285);
+
+        // 3. Sauvegarde
+        const filename = `${currentType}_${clientName.replace(/\s/g, '_')}.pdf`;
+        doc.save(filename);
+    });
+
+    function resetFormData() {
+        document.getElementById('appForm').reset();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('photoPreview').innerHTML = '';
+        uploadedPhotos = [];
+    }
+    
+    function resetForm() {
+        if(confirm("Tout effacer ?")) {
+            resetFormData();
+        }
+    }
+</script>
+
 </body>
 </html>
