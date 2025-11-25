@@ -2,170 +2,209 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TECHPRECISION - Gestion Atelier</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TECHPRECISION - Atelier</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #0056b3;
-            --secondary: #f4f4f4;
-            --dark: #333;
-            --danger: #dc3545;
-            --success: #28a745;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --text: #2c3e50;
+            --radius: 12px;
+            --shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: var(--secondary); color: var(--dark); }
-        .container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 90vh; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        .container { max-width: 600px; margin: 0 auto; min-height: 100vh; padding-bottom: 40px; }
+        * { box-sizing: border-box; }
 
-        /* HEADER */
-        .header-logo { text-align: center; margin-bottom: 30px; }
-        .header-logo img { max-height: 60px; width: auto; }
-        h1, h2 { text-align: center; color: var(--primary); margin-top: 5px; }
+        /* HEADER APP */
+        .app-header { background: var(--white); padding: 20px; text-align: center; border-radius: 0 0 20px 20px; box-shadow: var(--shadow); margin-bottom: 25px; }
+        .header-logo img { max-height: 50px; }
+        .app-header h1 { font-size: 1.1rem; color: var(--primary); margin: 5px 0 0; }
 
-        /* NAVIGATION (ÉCRANS) */
-        .screen { display: none; }
+        /* NAVIGATION */
+        .screen { display: none; animation: fade 0.3s; }
         .screen.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* MENU ACCUEIL */
-        .home-menu { display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 40px; }
-        .btn-big { padding: 25px 40px; font-size: 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; max-width: 400px; text-decoration: none; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s; }
-        .btn-big:hover { background: #004494; transform: scale(1.02); }
-        .btn-return { background-color: var(--success); }
-        .btn-return:hover { background-color: #218838; }
-
-        /* FORMULAIRES */
-        .back-link { cursor: pointer; color: #666; text-decoration: none; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
-        textarea { resize: vertical; height: 80px; font-family: inherit; }
-
-        /* CANVAS SIGNATURE */
-        .canvas-container { border: 2px dashed #ccc; background: #fff; position: relative; width: 100%; height: 200px; touch-action: none; border-radius: 4px; }
-        canvas { width: 100%; height: 100%; display: block; }
-
-        /* BOUTONS ACTIONS */
-        .actions { display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; color: white; font-weight: bold; }
-        .btn-primary { background: var(--primary); }
-        .btn-secondary { background: #6c757d; }
-        .btn-danger { background: var(--danger); }
-        .btn-small { padding: 8px 12px; font-size: 0.8rem; width: auto; flex: none; margin-top: 5px; }
-
-        /* PREVIEW PHOTOS */
-        #photoPreview { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .preview-img { width: 80px; height: 100px; border: 1px solid #ddd; border-radius: 4px; object-fit: cover; background: #eee; }
-
-        /* UTILITAIRES */
-        .hidden { display: none; }
-        
-        @media print {
-            .actions, .back-link, input[type="file"], #clearSig { display: none; }
-            .container { box-shadow: none; border: none; }
+        .home-menu { display: grid; gap: 15px; padding: 20px; }
+        .menu-btn {
+            background: var(--white); padding: 25px; border-radius: var(--radius); text-align: center;
+            box-shadow: var(--shadow); cursor: pointer; border: 1px solid transparent; transition: 0.2s;
         }
+        .menu-btn:active { transform: scale(0.98); }
+        .menu-btn i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
+        .menu-btn h3 { margin: 0; font-size: 1rem; }
+        .menu-btn.green i { color: #27ae60; }
+
+        /* FORMULAIRE UI */
+        .top-bar { display: flex; align-items: center; padding: 0 20px 15px; }
+        .back-btn { background: var(--white); border: none; width: 40px; height: 40px; border-radius: 50%; box-shadow: var(--shadow); cursor: pointer; color: var(--text); margin-right: 15px; }
+        
+        .card { background: var(--white); margin: 0 20px 20px; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .card h4 { margin: 0 0 15px; color: #7f8c8d; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #34495e; }
+        
+        /* INPUTS MODERNES */
+        .input-box { position: relative; }
+        .input-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #bdc3c7; }
+        input, select, textarea {
+            width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ecf0f1; border-radius: 8px;
+            font-size: 0.95rem; font-family: inherit; background: #fdfdfd; appearance: none;
+        }
+        textarea { padding-left: 15px; height: 80px; resize: none; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
+
+        /* PHOTOS & CANVAS */
+        #photoPreview { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .preview-img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; background: #eee; }
+        
+        .canvas-wrap { border: 2px dashed #bdc3c7; border-radius: 8px; height: 160px; position: relative; background: #fff; }
+        canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+        .canvas-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #eee; font-size: 1.5rem; pointer-events: none; }
+
+        /* BOUTONS */
+        .actions { padding: 20px; }
+        .btn-main { background: var(--primary); color: white; width: 100%; padding: 15px; border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 86, 179, 0.3); cursor: pointer; }
+        .btn-reset { background: none; border: none; color: #e74c3c; width: 100%; margin-top: 15px; cursor: pointer; text-decoration: underline; }
+        .btn-small { background: #eee; border: none; padding: 5px 10px; border-radius: 4px; color: #555; font-size: 0.8rem; margin-top: 5px; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-logo">
-        <img src="logo.png" alt="TECHPRECISION Logo" id="companyLogo" onerror="this.style.display='none'">
-        <h1>TECHPRECISION</h1>
-    </div>
-
+    
     <div id="homeScreen" class="screen active">
-        <h2 style="color: #666; font-size: 1.2rem; font-weight: normal;">Gestion d'atelier</h2>
+        <header class="app-header">
+            <div class="header-logo"><img src="logo.png" alt="Logo" id="logoImg" onerror="this.style.display='none'"></div>
+            <h1>TECHPRECISION</h1>
+        </header>
+
         <div class="home-menu">
-            <button onclick="openForm('prise_en_charge')" class="btn-big">Prise en charge matériel</button>
-            <button onclick="openForm('remise_materiel')" class="btn-big btn-return">Remise matériel</button>
+            <div onclick="openForm('prise_en_charge')" class="menu-btn">
+                <i class="fas fa-tools"></i>
+                <h3>Prise en charge</h3>
+            </div>
+            <div onclick="openForm('remise_materiel')" class="menu-btn green">
+                <i class="fas fa-check-circle"></i>
+                <h3>Remise matériel</h3>
+            </div>
         </div>
     </div>
 
     <div id="formScreen" class="screen">
-        <a onclick="goHome()" class="back-link">&larr; Retour accueil</a>
-        <h2 id="formTitle">Formulaire</h2>
+        <div class="top-bar">
+            <button onclick="goHome()" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h2 style="margin:0; font-size:1.2rem;">Formulaire</h2>
+        </div>
 
         <form id="appForm">
-            <div class="form-group">
-                <label>Date du jour</label>
-                <input type="date" id="date" required>
-            </div>
-            <div class="form-group">
-                <label>Nom du Client</label>
-                <input type="text" id="clientName" required placeholder="Nom Prénom">
-            </div>
-            <div class="form-group">
-                <label>Téléphone</label>
-                <input type="tel" id="phone" maxlength="10" required placeholder="0696..." pattern="\d{0,10}">
-            </div>
-            <div class="form-group">
-                <label>Type de matériel</label>
-                <select id="deviceType" required>
-                    <option value="PC Portable">PC Portable</option>
-                    <option value="PC Fixe">PC Fixe</option>
-                    <option value="Console de jeu">Console de jeu</option>
-                    <option value="Tablette">Tablette</option>
-                    <option value="Smartphone">Smartphone</option>
-                    <option value="Autre">Autre</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Modèle</label>
-                <input type="text" id="model" placeholder="Ex: HP Pavilion, PS5...">
-            </div>
-
-            <div id="section-intake" class="hidden">
+            <div class="card">
+                <h4><i class="fas fa-user"></i> Client</h4>
                 <div class="form-group">
-                    <label>État général</label>
-                    <select id="condition">
-                        <option value="Bon état">Bon état</option>
-                        <option value="Quelques traces d'usure">Quelques traces d'usure</option>
-                        <option value="Mauvais état">Mauvais état</option>
-                    </select>
+                    <label>Date</label>
+                    <div class="input-box"><i class="fas fa-calendar"></i><input type="date" id="date" required></div>
                 </div>
                 <div class="form-group">
-                    <label>Problème constaté</label>
-                    <textarea id="problem" placeholder="Ne s'allume pas, écran cassé..."></textarea>
+                    <label>Nom Complet</label>
+                    <div class="input-box"><i class="fas fa-id-card"></i><input type="text" id="clientName" required placeholder="Ex: Jean Dupont"></div>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <div class="input-box"><i class="fas fa-phone"></i><input type="tel" id="phone" maxlength="10" required placeholder="0696..." pattern="\d{0,10}"></div>
                 </div>
             </div>
 
-            <div id="section-return" class="hidden">
+            <div class="card">
+                <h4><i class="fas fa-laptop"></i> Matériel</h4>
                 <div class="form-group">
-                    <label>Réf. Prise en charge</label>
-                    <input type="text" id="refIntake" placeholder="N° Dossier ou Date dépôt">
+                    <label>Type</label>
+                    <div class="input-box"><i class="fas fa-desktop"></i>
+                        <select id="deviceType" required>
+                            <option value="PC Portable">PC Portable</option>
+                            <option value="PC Fixe">PC Fixe</option>
+                            <option value="Console">Console de jeu</option>
+                            <option value="Tablette">Tablette</option>
+                            <option value="Smartphone">Smartphone</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Travaux effectués / Commentaires</label>
-                    <textarea id="workDone" placeholder="Remplacement disque dur, nettoyage..."></textarea>
+                    <label>Modèle</label>
+                    <div class="input-box"><i class="fas fa-tag"></i><input type="text" id="model" placeholder="Ex: HP Pavilion, iPhone 12..."></div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Photos (Max 2)</label>
-                <input type="file" id="photoInput" accept="image/*" multiple capture="environment">
+            <div class="card">
+                <h4><i class="fas fa-list"></i> Détails</h4>
+                
+                <div id="section-intake" class="hidden">
+                    <div class="form-group">
+                        <label>État général</label>
+                        <div class="input-box"><i class="fas fa-search"></i>
+                            <select id="condition">
+                                <option value="Bon état">Bon état</option>
+                                <option value="Quelques traces d'usure">Quelques traces d'usure</option>
+                                <option value="Mauvais état">Mauvais état</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Problème constaté</label>
+                        <textarea id="problem" placeholder="Décrire la panne..."></textarea>
+                    </div>
+                </div>
+
+                <div id="section-return" class="hidden">
+                    <div class="form-group">
+                        <label>Réf. Prise en charge</label>
+                        <div class="input-box"><i class="fas fa-file-alt"></i><input type="text" id="refIntake" placeholder="N° Dossier..."></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Travaux effectués</label>
+                        <textarea id="workDone" placeholder="Réparations effectuées..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4><i class="fas fa-camera"></i> Photos (Max 2)</h4>
+                <input type="file" id="photoInput" accept="image/*" multiple capture="environment" style="display:none">
+                <button type="button" onclick="document.getElementById('photoInput').click()" class="btn-small" style="width:100%; padding:10px; font-size:0.9rem;">+ Ajouter Photo</button>
                 <div id="photoPreview"></div>
-                <small style="color:#666; display:block; margin-top:5px;">Prendre la photo téléphone à la verticale.</small>
             </div>
 
-            <div class="form-group">
-                <label>Signature du client</label>
-                <div class="canvas-container">
+            <div class="card">
+                <h4><i class="fas fa-pen-nib"></i> Signature</h4>
+                <div class="canvas-wrap">
+                    <span class="canvas-label">Signer ici</span>
                     <canvas id="sigCanvas"></canvas>
                 </div>
-                <button type="button" id="clearSig" class="btn btn-secondary btn-small">Effacer signature</button>
+                <button type="button" id="clearSig" class="btn-small">Effacer</button>
             </div>
 
             <div class="actions">
-                <button type="submit" class="btn btn-primary">Générer PDF</button>
-                <button type="button" onclick="resetForm()" class="btn btn-danger">Réinitialiser</button>
+                <button type="submit" class="btn-main">Générer le PDF</button>
+                <button type="button" onclick="resetForm()" class="btn-reset">Réinitialiser</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // --- VARIABLES GLOBALES ---
+    // --- CONFIGURATION ---
     const { jsPDF } = window.jspdf;
     let currentType = '';
     let uploadedPhotos = []; 
@@ -182,74 +221,57 @@
         document.getElementById('homeScreen').classList.remove('active');
         document.getElementById('formScreen').classList.add('active');
         
-        const titleEl = document.getElementById('formTitle');
         const intakeSec = document.getElementById('section-intake');
         const returnSec = document.getElementById('section-return');
         const problemField = document.getElementById('problem');
-
+        
         document.getElementById('date').valueAsDate = new Date();
 
         if (type === 'prise_en_charge') {
-            titleEl.innerText = "Fiche Prise en Charge";
             intakeSec.classList.remove('hidden');
             returnSec.classList.add('hidden');
             problemField.setAttribute('required', 'required');
         } else {
-            titleEl.innerText = "Fiche Remise Matériel";
             intakeSec.classList.add('hidden');
             returnSec.classList.remove('hidden');
             problemField.removeAttribute('required');
         }
-        
-        resizeCanvas();
+        setTimeout(resizeCanvas, 100); // Petit délai pour le rendu
     }
 
-    // --- GESTION PHOTOS ---
+    // --- PHOTOS (LOGIQUE PRESERVÉE) ---
     document.getElementById('photoInput').addEventListener('change', function(e) {
         const files = e.target.files;
-        const previewContainer = document.getElementById('photoPreview');
-        
         if (files.length + uploadedPhotos.length > 2) {
-            alert("Maximum 2 photos au total.");
-            this.value = ''; 
-            return;
+            alert("2 photos maximum."); this.value = ''; return;
         }
-
         Array.from(files).forEach(file => {
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = function(evt) {
                 const img = new Image();
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const maxSize = 1200;
-                    if (width > height) {
-                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-                    } else {
-                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-
+                    const cvs = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    const max = 1200;
+                    if(w>h) { if(w>max){h*=max/w;w=max;} } else { if(h>max){w*=max/h;h=max;} }
+                    cvs.width = w; cvs.height = h;
+                    cvs.getContext('2d').drawImage(img,0,0,w,h);
+                    const data = cvs.toDataURL('image/jpeg', 0.8);
+                    
                     if(uploadedPhotos.length < 2) {
-                        uploadedPhotos.push({ data: dataUrl, w: width, h: height });
-                        const previewImg = document.createElement('img');
-                        previewImg.src = dataUrl;
-                        previewImg.className = 'preview-img';
-                        previewContainer.appendChild(previewImg);
+                        uploadedPhotos.push({data:data, w:w, h:h});
+                        const pImg = document.createElement('img');
+                        pImg.src = data; pImg.className = 'preview-img';
+                        document.getElementById('photoPreview').appendChild(pImg);
                     }
                 };
-                img.src = event.target.result;
+                img.src = evt.target.result;
             };
             reader.readAsDataURL(file);
         });
     });
 
-    // --- GESTION SIGNATURE ---
+    // --- SIGNATURE ---
     const canvas = document.getElementById('sigCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
@@ -258,232 +280,208 @@
         const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = rect.width;
         canvas.height = rect.height;
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
     }
     window.addEventListener('resize', resizeCanvas);
 
     function getPos(e) {
         const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cx - rect.left, y: cy - rect.top };
     }
+    canvas.addEventListener('mousedown', e => { isDrawing=true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
+    canvas.addEventListener('mousemove', e => { if(!isDrawing)return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); });
+    canvas.addEventListener('mouseup', () => isDrawing=false);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); isDrawing=true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive:false});
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); if(!isDrawing)return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); }, {passive:false});
+    canvas.addEventListener('touchend', () => isDrawing=false);
+    document.getElementById('clearSig').addEventListener('click', () => ctx.clearRect(0,0,canvas.width,canvas.height));
 
-    canvas.addEventListener('mousedown', (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); });
-    canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); });
-    canvas.addEventListener('mouseup', () => { isDrawing = false; });
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; ctx.beginPath(); ctx.moveTo(getPos(e).x, getPos(e).y); }, {passive: false});
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!isDrawing) return; ctx.lineTo(getPos(e).x, getPos(e).y); ctx.stroke(); }, {passive: false});
-    canvas.addEventListener('touchend', () => { isDrawing = false; });
-
-    document.getElementById('clearSig').addEventListener('click', () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    // --- GÉNÉRATION PDF (MODIFIÉE) ---
+    // --- GENERATION PDF (DESIGN "PRO") ---
     document.getElementById('appForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-
-        const date = document.getElementById('date').value;
-        const clientName = document.getElementById('clientName').value;
-        const phone = document.getElementById('phone').value;
-        const deviceType = document.getElementById('deviceType').value;
-        const model = document.getElementById('model').value;
         
-        const condition = document.getElementById('condition').value;
-        const problem = document.getElementById('problem').value;
-        const refIntake = document.getElementById('refIntake').value;
-        const workDone = document.getElementById('workDone').value;
-
-        const signatureImg = canvas.toDataURL('image/png');
-
-        const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
-        const margin = 20;
-        const contentWidth = pageWidth - (margin * 2);
-        let currentY = 20;
-
-        // --- EN-TÊTE ---
-        const logoEl = document.getElementById('companyLogo');
-        if (logoEl && logoEl.complete && logoEl.naturalHeight !== 0) {
-            const c = document.createElement('canvas');
-            c.width = logoEl.naturalWidth;
-            c.height = logoEl.naturalHeight;
-            c.getContext('2d').drawImage(logoEl, 0, 0);
-            const logoBase64 = c.toDataURL('image/png'); 
-            doc.addImage(logoBase64, 'PNG', margin, currentY, 21, 14); 
-        } else {
-            doc.rect(margin, currentY, 21, 14);
-            doc.setFontSize(8);
-            doc.text("LOGO", margin + 5, currentY + 8);
-        }
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(22);
-        doc.text("TECHPRECISION", pageWidth / 2, currentY + 8, { align: "center" });
-
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text("Service de réparation informatique", pageWidth / 2, currentY + 16, { align: "center" });
-
-        currentY += 25;
-
-        // Titre Document
-        doc.setLineWidth(0.5);
-        doc.line(margin, currentY, pageWidth - margin, currentY);
-        currentY += 10;
-
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        const docTitle = currentType === 'prise_en_charge' ? "FICHE DE PRISE EN CHARGE" : "FICHE DE REMISE MATERIEL";
-        doc.text(docTitle, pageWidth / 2, currentY, { align: "center" });
-        currentY += 15;
-
-        // --- INFO CLIENT ---
-        doc.setFontSize(10);
-        const col1X = margin;
-        const col2X = margin + 90;
-        
-        const printField = (label, val, x, y) => {
-            doc.setFont("helvetica", "bold");
-            doc.text(label + " :", x, y);
-            doc.setFont("helvetica", "normal");
-            doc.text(val || "-", x + 35, y);
+        // Données
+        const d = {
+            date: document.getElementById('date').value,
+            name: document.getElementById('clientName').value,
+            phone: document.getElementById('phone').value,
+            type: document.getElementById('deviceType').value,
+            model: document.getElementById('model').value,
+            cond: document.getElementById('condition').value,
+            prob: document.getElementById('problem').value,
+            ref: document.getElementById('refIntake').value,
+            work: document.getElementById('workDone').value
         };
 
-        printField("Date", date, col1X, currentY);
-        printField("Matériel", deviceType, col2X, currentY);
-        currentY += 8;
+        const doc = new jsPDF();
+        const w = doc.internal.pageSize.getWidth();
+        const m = 15; // Marge
+        let y = 15;
 
-        printField("Client", clientName, col1X, currentY);
-        printField("Modèle", model, col2X, currentY);
-        currentY += 8;
-
-        printField("Téléphone", phone, col1X, currentY);
-        if (currentType === 'remise_materiel') {
-            printField("Réf. Dossier", refIntake, col2X, currentY);
+        // --- 1. EN-TÊTE LOGO + TITRE ---
+        const logo = document.getElementById('logoImg');
+        if(logo && logo.complete && logo.naturalHeight !== 0) {
+            const cvs = document.createElement('canvas'); 
+            cvs.width = logo.naturalWidth; cvs.height = logo.naturalHeight;
+            cvs.getContext('2d').drawImage(logo,0,0);
+            doc.addImage(cvs.toDataURL('image/png'), 'PNG', m, y, 25, 16);
         }
         
-        // --- SECTION DÉTAILS (Déplacée juste en dessous) ---
-        // On avance le curseur pour mettre les infos techniques tout de suite
-        currentY += 10;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.setTextColor(44, 62, 80); // Gris foncé
+        doc.text("TECHPRECISION", w - m, y + 8, { align: "right" });
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(127, 140, 141); // Gris clair
+        doc.text("Service de réparation informatique", w - m, y + 14, { align: "right" });
 
-        // NOTE: On a supprimé le doc.rect() ici
+        y += 25;
+
+        // --- 2. BANDEAU DE TITRE (BLEU) ---
+        doc.setFillColor(0, 86, 179); // Bleu TechPrecision
+        doc.rect(0, y, w, 12, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        const title = currentType === 'prise_en_charge' ? "FICHE DE PRISE EN CHARGE" : "FICHE DE REMISE MATERIEL";
+        doc.text(title, w/2, y + 8, { align: "center", charSpace: 1 });
+        
+        y += 22;
+
+        // --- 3. INFOS CLIENT (COLONNES) ---
+        doc.setTextColor(44, 62, 80);
+        doc.setFontSize(10);
+
+        // Helper pour afficher Label: Valeur
+        const row = (lbl, val, x) => {
+            doc.setFont("helvetica", "bold");
+            doc.text(lbl, x, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(val || "-", x, y + 5);
+        };
+
+        // Colonne 1
+        row("CLIENT", d.name, m);
+        row("TÉLÉPHONE", d.phone, m + 60);
+        row("DATE", d.date, m + 120);
+        
+        y += 15;
+        
+        // Colonne 2
+        row("MATÉRIEL", d.type, m);
+        row("MODÈLE", d.model, m + 60);
+        if(currentType !== 'prise_en_charge') row("RÉF. DOSSIER", d.ref, m + 120);
+
+        y += 15;
+
+        // --- 4. DETAILS TECHNIQUES (ENCADRÉ GRIS) ---
+        // Fond gris clair pour la section technique
+        doc.setFillColor(245, 247, 250); // Gris très clair
+        // On calcule la hauteur approx du cadre selon le contenu
+        let boxHeight = 40; 
+        if(d.prob.length > 50 || d.work.length > 50) boxHeight = 50;
+        
+        doc.setDrawColor(230, 230, 230);
+        doc.roundedRect(m, y, w - (m*2), boxHeight, 3, 3, 'FD'); // FD = Fill + Draw borders
+
+        let textY = y + 10;
+        let textX = m + 5;
+        let contentW = w - (m*2) - 10;
 
         if (currentType === 'prise_en_charge') {
             doc.setFont("helvetica", "bold");
-            doc.text("État général :", margin, currentY);
+            doc.text("ÉTAT GÉNÉRAL :", textX, textY);
             doc.setFont("helvetica", "normal");
-            doc.text(condition, margin + 35, currentY);
-            currentY += 8;
+            doc.text(d.cond, textX + 35, textY);
             
+            textY += 10;
             doc.setFont("helvetica", "bold");
-            doc.text("Problème :", margin, currentY);
-            // Gestion du texte long
+            doc.text("PROBLÈME :", textX, textY);
             doc.setFont("helvetica", "normal");
-            const splitProblem = doc.splitTextToSize(problem, contentWidth - 35);
-            doc.text(splitProblem, margin + 35, currentY);
-            
-            // Calculer la hauteur prise par le texte pour déplacer le curseur
-            const dim = doc.getTextDimensions(splitProblem);
-            currentY += dim.h + 10;
-
+            const splitProb = doc.splitTextToSize(d.prob, contentW);
+            doc.text(splitProb, textX, textY + 5);
         } else {
             doc.setFont("helvetica", "bold");
-            doc.text("Travaux effectués / Commentaires :", margin, currentY);
-            currentY += 8;
-            
+            doc.text("TRAVAUX EFFECTUÉS / COMMENTAIRES :", textX, textY);
             doc.setFont("helvetica", "normal");
-            const splitWork = doc.splitTextToSize(workDone, contentWidth);
-            doc.text(splitWork, margin, currentY);
-            
-            const dim = doc.getTextDimensions(splitWork);
-            currentY += dim.h + 10;
+            const splitWork = doc.splitTextToSize(d.work, contentW);
+            doc.text(splitWork, textX, textY + 5);
         }
 
-        // Ajout d'un petit espacement avant les photos
-        currentY += 10;
+        y += boxHeight + 15;
 
-        // --- PHOTOS ---
+        // --- 5. PHOTOS ---
         if (uploadedPhotos.length > 0) {
-            // S'assurer qu'on n'est pas trop bas
-            if (currentY > 200) { doc.addPage(); currentY = 20; }
-
+            // Check saut de page
+            if (y > 220) { doc.addPage(); y = 20; }
+            
             doc.setFont("helvetica", "bold");
-            doc.text("Photos du matériel :", margin, currentY);
-            currentY += 5;
-            
-            let photoX = margin;
-            
-            uploadedPhotos.forEach(photoObj => {
-                const targetW = 50;
-                const targetH = 70;
-                
-                let drawW = targetW;
-                let drawH = targetH;
-                
-                if (photoObj.w > photoObj.h) {
-                    drawH = targetW * (photoObj.h / photoObj.w);
-                    const offsetY = (targetH - drawH) / 2;
-                    doc.addImage(photoObj.data, 'JPEG', photoX, currentY + offsetY, targetW, drawH);
-                } else {
-                    drawW = targetH * (photoObj.w / photoObj.h);
-                    if (drawW > targetW) {
-                        drawW = targetW;
-                        drawH = targetW * (photoObj.h / photoObj.w);
-                    }
-                    const offsetX = (targetW - drawW) / 2;
-                    doc.addImage(photoObj.data, 'JPEG', photoX + offsetX, currentY, drawW, drawH);
-                }
+            doc.text("PHOTOS", m, y);
+            y += 5;
 
+            let px = m;
+            uploadedPhotos.forEach(p => {
+                // Logique Portrait (50x70)
+                let tw=50, th=70;
+                let dw=tw, dh=th;
+                
+                // Centrage intelligent dans la boite 50x70
+                if(p.w > p.h) {
+                    dh = tw * (p.h/p.w);
+                    doc.addImage(p.data, 'JPEG', px, y + ((th-dh)/2), tw, dh);
+                } else {
+                    dw = th * (p.w/p.h);
+                    if(dw > tw) { dw=tw; dh=tw*(p.h/p.w); } // Si trop large malgré tout
+                    doc.addImage(p.data, 'JPEG', px + ((tw-dw)/2), y, dw, dh);
+                }
+                // Petit cadre fin autour photo
                 doc.setDrawColor(200);
-                doc.rect(photoX, currentY, targetW, targetH);
-                photoX += 55; 
+                doc.rect(px, y, tw, th);
+                px += 55;
             });
-            currentY += 75;
-        } else {
-            currentY += 10;
+            y += 75;
         }
 
-        // --- SIGNATURE ---
-        // Vérification bas de page
-        if (currentY > 240) { doc.addPage(); currentY = 20; }
-
-        doc.setLineWidth(0.2);
-        doc.line(margin, currentY, pageWidth - margin, currentY);
-        currentY += 10;
+        // --- 6. SIGNATURE ---
+        if (y > 250) { doc.addPage(); y = 20; }
+        
+        // Ligne séparation
+        doc.setDrawColor(200);
+        doc.line(m, y, w-m, y);
+        y += 10;
 
         doc.setFont("helvetica", "bold");
-        doc.text("Signature du client :", pageWidth - margin - 60, currentY);
+        doc.text("SIGNATURE CLIENT", w - m - 50, y);
         
-        if (signatureImg) {
-             doc.addImage(signatureImg, 'PNG', pageWidth - margin - 60, currentY + 5, 50, 25);
-        }
+        const sigData = canvas.toDataURL('image/png');
+        doc.addImage(sigData, 'PNG', w - m - 50, y + 5, 40, 20);
 
-        // --- FOOTER ---
+        // --- PIED DE PAGE ---
         doc.setFontSize(8);
-        doc.setTextColor(100);
-        doc.text(`Document généré par TECHPRECISION - ${new Date().toLocaleString()}`, margin, 285);
+        doc.setTextColor(150);
+        const dateStr = new Date().toLocaleString('fr-FR');
+        doc.text(`Document généré par TECHPRECISION le ${dateStr}`, m, 285);
+        
+        // Bande bleue fine tout en bas
+        doc.setFillColor(0, 86, 179);
+        doc.rect(0, 295, w, 2, 'F');
 
-        // 3. Sauvegarde
-        const filename = `${currentType}_${clientName.replace(/\s/g, '_')}.pdf`;
-        doc.save(filename);
+        // SAVE
+        doc.save(`${currentType}_${d.name.replace(/\s/g,'_')}.pdf`);
     });
 
     function resetFormData() {
         document.getElementById('appForm').reset();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
         document.getElementById('photoPreview').innerHTML = '';
         uploadedPhotos = [];
     }
     
-    function resetForm() {
-        if(confirm("Tout effacer ?")) {
-            resetFormData();
-        }
-    }
+    function resetForm() { if(confirm("Effacer tout ?")) resetFormData(); }
 </script>
 
 </body>
