@@ -35,191 +35,227 @@
             padding: 40px !important; /* Marges papier */
             max-width: none !important;
             width: 794px !important; /* Largeur A4 en pixels (96dpi) */
+            min-height: 1123px !important; /* Hauteur A4 min */
             margin: 0 !important;
             color: #000 !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1000;
         }
         .pdf-mode header {
             margin-bottom: 20px !important;
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid #3b82f6; /* Ligne bleue TechPrecision */
             padding-bottom: 20px;
         }
         .pdf-mode .pdf-value {
-            background-color: #f9fafb; /* Gris très clair */
-            border: 1px solid #e5e7eb;
-            padding: 8px 12px;
+            background-color: #f3f4f6; /* Gris très clair */
+            border-bottom: 1px solid #d1d5db; /* Soulignement léger */
+            padding: 6px 10px;
             font-weight: 700; /* Gras pour les données saisies */
             color: #111827;
-            border-radius: 4px;
-            margin-top: 4px;
+            border-radius: 2px;
+            margin-top: 2px;
             font-size: 14px;
         }
         .pdf-mode label {
-            color: #4b5563;
-            font-size: 12px;
+            color: #6b7280;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-weight: 600;
+            margin-top: 10px;
+            display: block;
+        }
+        
+        /* Helper pour cacher des éléments spécifiquement dans le PDF */
+        .hide-in-pdf {
+            display: none !important;
         }
     </style>
 </head>
 
 <body class="p-4 sm:p-6 md:p-8">
 
+    <!-- Screen de sélection -->
     <div id="selection-screen" class="max-w-2xl mx-auto text-center">
         <header class="mb-10">
-            <div class="mx-auto mb-4 h-14 w-14 flex items-center justify-center bg-blue-600 text-white rounded-full font-bold text-2xl">T</div>
+            <div class="mx-auto mb-4 h-16 w-16 flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-xl shadow-lg font-bold text-3xl">T</div>
             <h1 class="text-3xl font-bold text-gray-800">TECHPRECISION</h1>
             <p class="text-gray-600 mt-2">Gestion des fiches - Veuillez sélectionner un type de fiche</p>
         </header>
-        <div class="bg-white rounded-lg shadow-2xl p-8 space-y-6">
-            <button id="btn-prise-en-charge" class="w-full text-left p-6 bg-slate-50 hover:bg-blue-100 rounded-lg border border-slate-200 transition duration-200 flex items-center space-x-4">
-                <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+        <div class="bg-white rounded-xl shadow-xl p-8 space-y-6">
+            <button id="btn-prise-en-charge" class="w-full text-left p-6 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-xl border border-slate-200 transition-all duration-200 flex items-center space-x-5 group">
+                <div class="bg-white border border-blue-100 text-blue-600 p-4 rounded-full shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Fiche de prise en charge</h2>
-                    <p class="text-gray-600">Pour enregistrer un nouveau matériel déposé par un client.</p>
+                    <h2 class="text-xl font-bold text-gray-800 group-hover:text-blue-700">Fiche de prise en charge</h2>
+                    <p class="text-gray-500 text-sm mt-1">Entrée atelier : enregistrement du matériel et de la panne.</p>
                 </div>
             </button>
-            <button id="btn-remise-client" class="w-full text-left p-6 bg-slate-50 hover:bg-green-100 rounded-lg border border-slate-200 transition duration-200 flex items-center space-x-4">
-                 <div class="bg-green-100 text-green-600 p-3 rounded-full">
+            <button id="btn-remise-client" class="w-full text-left p-6 bg-slate-50 hover:bg-green-50 hover:border-green-300 rounded-xl border border-slate-200 transition-all duration-200 flex items-center space-x-5 group">
+                 <div class="bg-white border border-green-100 text-green-600 p-4 rounded-full shadow-sm group-hover:bg-green-600 group-hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Fiche de remise client</h2>
-                    <p class="text-gray-600">Pour acter la restitution du matériel réparé au client.</p>
+                    <h2 class="text-xl font-bold text-gray-800 group-hover:text-green-700">Fiche de remise client</h2>
+                    <p class="text-gray-500 text-sm mt-1">Sortie atelier : validation des réparations et restitution.</p>
                 </div>
             </button>
         </div>
     </div>
 
 
-    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl p-8" id="form-container">
-        <header id="form-header" class="text-center mb-10">
-             <div class="mx-auto mb-4 h-12 w-12 flex items-center justify-center bg-blue-600 text-white rounded-full font-bold text-xl">T</div>
-            <h1 class="text-3xl font-bold text-gray-800 tracking-tight">TECHPRECISION</h1>
-            <h2 id="form-title" class="text-xl font-medium text-gray-500 mt-1 uppercase tracking-wide"></h2>
-        </header>
-
-        <div id="form-body-wrapper">
-            <form id="support-form" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                    <div>
-                        <label for="date" id="date-label" class="block text-sm font-medium text-gray-700"></label>
-                        <input type="text" id="date" name="date" readonly class="mt-1 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
-                    </div>
-                    <div class="flex items-end space-x-4">
-                        <div class="flex-shrink-0 w-24">
-                            <label class="block text-sm font-medium text-gray-700">Civilité</label>
-                            <select id="civilite" name="civilite" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
-                                <option>Mr</option>
+    <!-- Conteneur du formulaire (initialement caché) -->
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden hidden" id="form-container">
+        <div class="p-8 md:p-10">
+            <!-- En-tête -->
+            <header id="form-header" class="text-center mb-10 pb-6 border-b border-gray-100">
+                 <div class="mx-auto mb-4 h-12 w-12 flex items-center justify-center bg-blue-600 text-white rounded-lg font-bold text-xl shadow-md">T</div>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">TECHPRECISION</h1>
+                <h2 id="form-title" class="text-lg font-medium text-blue-600 mt-1 uppercase tracking-wider"></h2>
+            </header>
+    
+            <div id="form-body-wrapper">
+                <!-- Formulaire -->
+                <form id="support-form" class="space-y-6">
+                    <!-- Date et Informations Client -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                        <div class="md:col-span-4">
+                            <label for="date" id="date-label" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                            <input type="text" id="date" name="date" readonly class="w-full bg-slate-50 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5 text-gray-600">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Civilité</label>
+                            <select id="civilite" name="civilite" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5">
+                                <option>M.</option>
                                 <option>Mme</option>
+                                <option>Ste</option>
                             </select>
                         </div>
-                        <div class="flex-grow">
-                            <label for="nom" class="block text-sm font-medium text-gray-700">Nom du client</label>
-                            <input type="text" id="nom" name="nom" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2" placeholder="Prénom et Nom">
+                        <div class="md:col-span-6">
+                            <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom du client</label>
+                            <input type="text" id="nom" name="nom" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5" placeholder="Nom complet ou Société">
                         </div>
                     </div>
-                </div>
-
-                <div>
-                    <label for="telephone" class="block text-sm font-medium text-gray-700">Numéro de téléphone</label>
-                    <input type="tel" id="telephone" name="telephone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2" placeholder="06 12 34 56 78">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
                     <div>
-                        <label for="type_materiel" class="block text-sm font-medium text-gray-700">Type de matériel</label>
-                        <select id="type_materiel" name="type_materiel" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
-                            <option>Pc portable</option>
-                            <option>Smartphone</option>
-                            <option>Tablette</option>
-                            <option>Console de jeu</option>
-                            <option>Tour PC</option>
-                            <option>Autre</option>
-                        </select>
+                        <label for="telephone" class="block text-sm font-medium text-gray-700 mb-1">Numéro de téléphone</label>
+                        <input type="tel" id="telephone" name="telephone" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5" placeholder="06 96 XX XX XX">
                     </div>
-                    <div>
-                        <label for="marque" class="block text-sm font-medium text-gray-700">Marque et modèle</label>
-                        <input type="text" id="marque" name="marque" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2" placeholder="Ex: Apple Macbook Pro 14">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="probleme" id="probleme-label" class="block text-sm font-medium text-gray-700"></label>
-                    <textarea id="probleme" name="probleme" rows="4" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"></textarea>
-                </div>
-                 <div>
-                    <label for="etat_materiel" class="block text-sm font-medium text-gray-700">État général du matériel</label>
-                    <select id="etat_materiel" name="etat_materiel" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2">
-                        <option>Bon état</option>
-                        <option>Rayures d'usage</option>
-                        <option>Choc visible</option>
-                        <option>Écran cassé</option>
-                        <option>Mauvais état</option>
-                    </select>
-                </div>
-
-                <div id="photos-section">
-                    <label class="block text-sm font-medium text-gray-700">Ajouter des photos (2 maximum)</label>
-                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md bg-gray-50 hover:bg-gray-100 transition">
-                        <div class="space-y-1 text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <div class="flex text-sm text-gray-600 justify-center">
-                                <label for="file-upload" class="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
-                                    <span>Téléchargez des fichiers</span>
-                                    <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*,.heic,.heif">
-                                </label>
+    
+                    <!-- Informations Matériel -->
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b pb-2">Détails de l'appareil</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="type_materiel" class="block text-sm font-medium text-gray-700 mb-1">Type de matériel</label>
+                                <select id="type_materiel" name="type_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5">
+                                    <option>Smartphone</option>
+                                    <option>Tablette</option>
+                                    <option>PC Portable</option>
+                                    <option>PC Fixe / Tour</option>
+                                    <option>Console de jeu</option>
+                                    <option>Montre connectée</option>
+                                    <option>Autre</option>
+                                </select>
                             </div>
-                            <p class="text-xs text-gray-500">JPG, PNG, HEIC</p>
+                            <div>
+                                <label for="marque" class="block text-sm font-medium text-gray-700 mb-1">Marque et modèle</label>
+                                <input type="text" id="marque" name="marque" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5" placeholder="Ex: iPhone 13, Samsung S21, MacBook Air M1...">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="etat_materiel" class="block text-sm font-medium text-gray-700 mb-1">État esthétique général</label>
+                                <select id="etat_materiel" name="etat_materiel" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-2.5">
+                                    <option>Bon état général</option>
+                                    <option>Usure normale (micro-rayures)</option>
+                                    <option>Rayures visibles / Chocs légers</option>
+                                    <option>Mauvais état / Cassé</option>
+                                    <option>Non vérifiable (appareil ne s'allume pas)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div id="image-previews" class="mt-4 grid grid-cols-2 gap-4"></div>
-                </div>
-
-                <div class="break-inside-avoid">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Signature du client</label>
-                    <div class="relative">
-                        <canvas id="signature-pad" class="w-full h-40 bg-gray-50 border border-gray-300 rounded-md cursor-crosshair"></canvas>
-                        <button type="button" id="clear-signature" class="absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 text-xs px-2 py-1 rounded shadow-sm hover:bg-gray-100">Effacer</button>
+    
+                    <!-- Problème / Intervention -->
+                    <div>
+                        <label for="probleme" id="probleme-label" class="block text-sm font-medium text-gray-700 mb-1"></label>
+                        <textarea id="probleme" name="probleme" rows="4" required class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm p-3" placeholder="Description détaillée..."></textarea>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1 italic">Signer dans le cadre ci-dessus</p>
-                </div>
-            </form>
-            
-            <div id="error-container" class="text-left text-sm text-red-600 h-5 mt-2 font-medium"></div>
-            <div class="mt-6 pt-5 border-t border-gray-200">
-                <div class="flex justify-between space-x-3">
-                    <button type="button" id="back-to-selection" class="btn-secondary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                        </svg>
-                        <span>Retour</span>
-                    </button>
-                    <button type="button" id="export-pdf" class="btn-primary">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                         </svg>
-                        <span>Générer PDF</span>
-                    </button>
+    
+                    <!-- Ajout de Photos -->
+                    <div id="photos-section" class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                        <label class="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Photos de l'appareil (Optionnel)</label>
+                        
+                        <div class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-100 transition-colors bg-white cursor-pointer" onclick="document.getElementById('file-upload').click()">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <span class="relative rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                        <span>Sélectionner des photos</span>
+                                        <input id="file-upload" name="file-upload" type="file" class="sr-only" multiple accept="image/*,.heic,.heif">
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, HEIC jusqu'à 2 fichiers</p>
+                            </div>
+                        </div>
+                        <div id="image-previews" class="mt-4 grid grid-cols-2 gap-4"></div>
+                    </div>
+    
+                    <!-- Signature -->
+                    <div class="break-inside-avoid">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Signature du client <span class="text-red-500">*</span></label>
+                        <div class="relative rounded-xl overflow-hidden border border-gray-300 shadow-sm">
+                            <canvas id="signature-pad" class="w-full h-48 bg-white cursor-crosshair block"></canvas>
+                            <div class="absolute top-0 right-0 p-2">
+                                <button type="button" id="clear-signature" class="bg-white/90 backdrop-blur border border-gray-200 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+                                    Effacer
+                                </button>
+                            </div>
+                            <div class="absolute bottom-2 left-0 w-full text-center pointer-events-none opacity-30">
+                                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Zone de signature</p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Actions (Boutons) -->
+                <div id="error-container" class="text-left text-sm text-red-600 h-5 mt-4 font-medium pl-1"></div>
+                <div class="mt-4 pt-6 border-t border-gray-200">
+                    <div class="flex justify-between items-center gap-4">
+                        <button type="button" id="back-to-selection" class="btn-secondary w-full md:w-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                            </svg>
+                            <span>Retour</span>
+                        </button>
+                        <button type="button" id="export-pdf" class="btn-primary w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                               <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                             </svg>
+                            <span>Valider & PDF</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- Pied de page caché pour la génération PDF (Mentions légales) -->
     <div id="pdf-mentions" class="hidden">
-        <footer class="text-justify text-[9px] text-gray-500 mt-8 pt-4 border-t border-gray-300 leading-tight">
-            <h4 class="font-bold mb-1 uppercase text-gray-700">Conditions Générales & Mentions</h4>
-            <p class="mb-1"><strong>Responsabilité des données :</strong> Le client reconnaît être le seul responsable de la sauvegarde de l'intégralité de ses données avant de confier son matériel. TechPrecision ne pourra en aucun cas être tenue pour responsable de la perte de données.</p>
-            <p class="mb-1"><strong>Garantie :</strong> Nos interventions et les pièces détachées sont garanties pour une durée de 3 mois à compter de la date de restitution de l'appareil. Cette garantie couvre uniquement la panne ou le défaut objet de la présente réparation.</p>
-            <p><strong>Acceptation :</strong> La signature de cette fiche vaut acceptation sans réserve de nos conditions générales de réparation et de restitution ainsi que de l'état des lieux du matériel décrit ci-dessus.</p>
+        <footer class="text-justify text-[10px] text-gray-500 mt-8 pt-4 border-t-2 border-gray-200 leading-normal">
+            <h4 class="font-bold mb-2 uppercase text-gray-700 text-xs">Conditions Générales de Service</h4>
+            <p class="mb-1.5"><strong>1. Données :</strong> Le client déclare avoir effectué une sauvegarde complète de ses données. TechPrecision décline toute responsabilité en cas de perte de données ou de logiciels durant l'intervention.</p>
+            <p class="mb-1.5"><strong>2. Garantie :</strong> Les réparations sont garanties 3 mois (pièces et main d'œuvre) hors casse, oxydation ou nouvelle panne.</p>
+            <p class="mb-1.5"><strong>3. Abandon :</strong> Tout appareil non réclamé sous 6 mois sera considéré comme abandonné et pourra être recyclé.</p>
+            <p><strong>4. Accord :</strong> La signature ci-dessus vaut acceptation du devis estimatif (si communiqué) et des conditions présentes, ainsi que la validation de l'état esthétique déclaré.</p>
         </footer>
     </div>
 
@@ -245,22 +281,19 @@
             const problemeLabel = document.getElementById('probleme-label');
             const problemeTextarea = document.getElementById('probleme');
             
-            let currentFormType = ''; // 'prise-en-charge' or 'remise-client'
+            let currentFormType = ''; 
             let uploadedFiles = [];
             let drawing = false;
             let lastPos = { x: 0, y: 0 };
             let hasSigned = false;
 
-            // --- Fonctions ---
+            // --- Fonctions Utilitaires ---
 
             function setTodayDate() {
                 const today = new Date();
                 dateField.value = today.toLocaleDateString('fr-FR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    day: 'numeric', month: 'long', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
                 });
             }
 
@@ -271,8 +304,7 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 hasSigned = false;
                 setTodayDate();
-                const errorContainer = document.getElementById('error-container');
-                errorContainer.textContent = '';
+                document.getElementById('error-container').textContent = '';
                 supportForm.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
             }
             
@@ -291,34 +323,41 @@
                     }
                 });
 
+                // Validation signature
+                const canvasContainer = canvas.parentElement;
+                canvasContainer.classList.remove('ring-2', 'ring-red-500');
+                if (!hasSigned) {
+                    allValid = false;
+                    canvasContainer.classList.add('ring-2', 'ring-red-500');
+                }
+
                 if (!allValid) {
-                    errorContainer.textContent = "Veuillez remplir tous les champs obligatoires.";
+                    errorContainer.textContent = "Merci de compléter les champs obligatoires et de signer.";
+                    errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 return allValid;
             }
 
             function setupForm(formType) {
                 currentFormType = formType;
-                resetForm(); // Reset form state before showing
+                resetForm(); 
 
                 if (formType === 'prise-en-charge') {
                     formTitle.textContent = 'Fiche de Prise en Charge';
-                    dateLabel.textContent = 'Date de dépôt';
-                    problemeLabel.textContent = 'Problème constaté / Demande';
-                    problemeTextarea.placeholder = 'Ex: Écran cassé, ne s\'allume plus, batterie HS...';
+                    dateLabel.textContent = 'Date et Heure de dépôt';
+                    problemeLabel.textContent = 'Description de la panne / Demande client';
+                    problemeTextarea.placeholder = 'Ex: Écran fissuré, batterie ne tient pas la charge, récupération de données...';
                 } else if (formType === 'remise-client') {
                     formTitle.textContent = 'Fiche de Restitution';
-                    dateLabel.textContent = 'Date de sortie';
-                    problemeLabel.textContent = 'Intervention réalisée / Remarques';
-                    problemeTextarea.placeholder = 'Ex: Remplacement écran LCD, test ok...';
+                    dateLabel.textContent = 'Date et Heure de sortie';
+                    problemeLabel.textContent = 'Travaux effectués / Résultat des tests';
+                    problemeTextarea.placeholder = 'Ex: Remplacement bloc écran, tests tactiles OK, nettoyage complet...';
                 }
 
-                // Switch views
                 selectionScreen.style.display = 'none';
-                formContainer.style.display = 'block';
-                // Scroll to top
+                formContainer.classList.remove('hidden');
                 window.scrollTo(0, 0);
-                resizeCanvas(); 
+                setTimeout(resizeCanvas, 100); 
             }
 
             // --- Initialisation & Event Listeners ---
@@ -328,7 +367,7 @@
             btnPriseEnCharge.addEventListener('click', () => setupForm('prise-en-charge'));
             btnRemiseClient.addEventListener('click', () => setupForm('remise-client'));
             btnBackToSelection.addEventListener('click', () => {
-                formContainer.style.display = 'none';
+                formContainer.classList.add('hidden');
                 selectionScreen.style.display = 'block';
                 currentFormType = '';
             });
@@ -347,10 +386,15 @@
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             const previewWrapper = document.createElement('div');
-                            previewWrapper.className = 'relative w-full aspect-a7 border rounded-lg overflow-hidden shadow-sm bg-gray-100';
+                            previewWrapper.className = 'relative w-full aspect-a7 border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white group';
                             previewWrapper.innerHTML = `
                                 <img src="${e.target.result}" class="w-full h-full object-cover">
-                                <button type="button" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs leading-none w-6 h-6 flex items-center justify-center shadow hover:bg-red-600 transition">&times;</button>
+                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all"></div>
+                                <button type="button" class="absolute top-2 right-2 bg-white text-red-500 rounded-full p-1.5 shadow-md hover:bg-red-50 transition transform hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             `;
                             previewsContainer.appendChild(previewWrapper);
                             
@@ -367,15 +411,25 @@
                 });
             }
 
-            // Gestion de la signature
+            // --- Gestion Signature ---
             function resizeCanvas() {
-                // Ensure canvas is visible before measuring
                 const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                const oldContent = hasSigned ? canvas.toDataURL() : null;
+                
                 canvas.width = canvas.offsetWidth * ratio;
                 canvas.height = canvas.offsetHeight * ratio;
                 ctx.scale(ratio, ratio);
+                
+                if (oldContent) {
+                    const img = new Image();
+                    img.src = oldContent;
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                    }
+                }
+
                 ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 2.5; 
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
             }
@@ -393,65 +447,80 @@
 
             function draw(pos) {
                 if (!drawing) return;
-                ctx.beginPath();
-                ctx.moveTo(lastPos.x, lastPos.y);
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
                 lastPos = pos;
                 hasSigned = true;
+                canvas.parentElement.classList.remove('ring-2', 'ring-red-500');
+            }
+            
+            function startDraw(pos) {
+                drawing = true;
+                lastPos = pos;
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
             }
 
-            canvas.addEventListener('mousedown', (e) => { drawing = true; lastPos = getMousePos(canvas, e); });
-            canvas.addEventListener('mouseup', () => drawing = false);
+            canvas.addEventListener('mousedown', (e) => startDraw(getMousePos(canvas, e)));
+            canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
             canvas.addEventListener('mousemove', (e) => draw(getMousePos(canvas, e)));
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; lastPos = getTouchPos(canvas, e); });
-            canvas.addEventListener('touchend', (e) => { e.preventDefault(); drawing = false; });
+            
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(getTouchPos(canvas, e)); });
+            canvas.addEventListener('touchend', (e) => { e.preventDefault(); drawing = false; ctx.beginPath(); });
             canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(getTouchPos(canvas, e)); });
+
             document.getElementById('clear-signature').addEventListener('click', () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 hasSigned = false;
             });
             
-            // --- Actions d'Export ---
-            
-            const { jsPDF } = window.jspdf;
+            // --- Génération PDF ---
             
             document.getElementById('export-pdf').addEventListener('click', () => {
                 if (!validateForm()) return;
 
-                // 1. Prepare the Clone
+                // Vérification de sécurité pour les librairies
+                if (!window.jspdf || !window.html2canvas) {
+                    alert("Les outils PDF chargent encore. Réessayez dans 2 secondes.");
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+
+                // 1. Cloner
                 const formToExport = document.getElementById('form-container');
                 const renderContainer = formToExport.cloneNode(true);
                 
-                // 2. Apply "PDF Mode" Styling (Transform from Web App to Document)
+                // 2. Mode PDF
+                renderContainer.id = 'pdf-render-zone'; 
+                renderContainer.classList.remove('hidden', 'shadow-2xl', 'rounded-xl', 'overflow-hidden');
                 renderContainer.classList.add('pdf-mode');
-                renderContainer.style.position = 'absolute';
-                renderContainer.style.left = '-9999px';
-                renderContainer.style.top = '0';
                 
-                // Add legal mentions footer
+                renderContainer.querySelector('.p-8').classList.remove('p-8', 'md:p-10'); 
+                
                 const mentionsFooter = document.getElementById('pdf-mentions').cloneNode(true);
                 mentionsFooter.classList.remove('hidden');
                 renderContainer.querySelector('#form-body-wrapper').appendChild(mentionsFooter);
 
                 document.body.appendChild(renderContainer);
 
-                // 3. Clean up UI elements (hide buttons, file inputs)
+                // 3. Masquer éléments interactifs
                 const elementsToHide = [
                     ...renderContainer.querySelectorAll('button'),
                     ...renderContainer.querySelectorAll('#error-container'),
-                    renderContainer.querySelector('#file-upload').closest('.border-dashed') // Hide the drag & drop area
+                    renderContainer.querySelector('#file-upload') ? renderContainer.querySelector('#file-upload').closest('.cursor-pointer') : null,
+                    renderContainer.querySelector('.pointer-events-none') 
                 ];
                 elementsToHide.forEach(el => {
                     if(el) el.style.display = 'none';
                 });
 
-                // 4. Convert Inputs to clean Text
+                // 4. Conversion Inputs -> Texte propre
                 const fieldsToConvert = renderContainer.querySelectorAll('input, select, textarea');
 
                 fieldsToConvert.forEach(field => {
                     const textValue = document.createElement('div');
-                    textValue.className = 'pdf-value'; // See CSS for styling
+                    textValue.className = 'pdf-value';
                     
                     const originalField = document.getElementById(field.id); 
                     let displayValue = '';
@@ -462,97 +531,109 @@
                         displayValue = originalField.value;
                     }
 
-                    if (!displayValue || displayValue.trim() === '') {
-                        displayValue = '-';
-                    }
+                    if (!displayValue || displayValue.trim() === '') displayValue = '-';
 
                     textValue.textContent = displayValue;
-                    textValue.style.whiteSpace = 'pre-wrap'; // Preserve line breaks for textarea
+                    textValue.style.whiteSpace = 'pre-wrap'; 
                     
                     field.style.display = 'none';
                     field.parentNode.insertBefore(textValue, field);
                 });
                 
-                // 5. Handle Canvas (Signature)
+                // 5. Gestion Signature (Image)
                 const clonedCanvas = renderContainer.querySelector('#signature-pad');
                 if (hasSigned) {
-                    // Create an image from original canvas
                     const img = document.createElement('img');
-                    img.src = canvas.toDataURL();
-                    img.className = 'w-full h-40 border border-gray-300 rounded-md';
+                    img.src = canvas.toDataURL('image/png');
+                    img.className = 'w-full h-32 object-contain border-b border-gray-300';
                     clonedCanvas.parentNode.replaceChild(img, clonedCanvas);
-                } else {
-                     // Empty signature placeholder
-                     const emptySig = document.createElement('div');
-                     emptySig.className = 'w-full h-40 border border-gray-300 bg-gray-50 rounded-md flex items-center justify-center text-gray-400 italic';
-                     emptySig.textContent = 'Non signé';
-                     clonedCanvas.parentNode.replaceChild(emptySig, clonedCanvas);
                 }
 
-                // 6. Handle Images Previews
+                // 6. Gestion Photos
                 const originalPreviews = previewsContainer.querySelectorAll('img');
                 const clonedPreviewsContainer = renderContainer.querySelector('#image-previews');
-                clonedPreviewsContainer.innerHTML = ''; // Clear cloned content
+                clonedPreviewsContainer.innerHTML = '';
+                clonedPreviewsContainer.className = 'mt-4 flex flex-wrap gap-4'; 
                 
                 if (originalPreviews.length > 0) {
                      originalPreviews.forEach(img => {
                         const previewWrapper = document.createElement('div');
-                        previewWrapper.className = 'relative w-full aspect-a7 border border-gray-300 rounded-lg overflow-hidden';
+                        previewWrapper.className = 'border border-gray-300 rounded p-1 bg-white';
+                        previewWrapper.style.width = '48%'; 
+                        
                         const newImg = document.createElement('img');
                         newImg.src = img.src;
-                        newImg.className = 'w-full h-full object-cover';
+                        newImg.className = 'w-full object-contain max-h-64'; 
+                        
                         previewWrapper.appendChild(newImg);
                         clonedPreviewsContainer.appendChild(previewWrapper);
                     });
                 } else {
-                    document.getElementById('photos-section').style.display = 'none'; // Hide section if no photos
+                    const noPhoto = document.createElement('p');
+                    noPhoto.textContent = "Aucune photo jointe.";
+                    noPhoto.className = "text-sm text-gray-400 italic";
+                    clonedPreviewsContainer.appendChild(noPhoto);
                 }
 
+                window.scrollTo(0,0);
+                
+                renderContainer.style.paddingBottom = "50px";
 
-                // 7. Render with High Quality Settings
                 html2canvas(renderContainer, { 
-                    scale: 3, // High resolution
+                    scale: 2, 
                     useCORS: true,
-                    backgroundColor: '#ffffff', // Force white background
-                    windowWidth: 1024 // Ensure layout consistency
+                    backgroundColor: '#ffffff',
+                    scrollY: -window.scrollY, 
+                    windowHeight: document.documentElement.offsetHeight + 500 
                 })
-                    .then(canvas => {
-                        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                        
-                        const pageHeight = pdf.internal.pageSize.getHeight();
-                        const pageWidth = pdf.internal.pageSize.getWidth();
-                        const imgProps = pdf.getImageProperties(imgData);
-                        const pdfHeight = (imgProps.height * pageWidth) / imgProps.width;
-                        
-                        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pdfHeight);
+                .then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                    
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    
+                    const imgProps = pdf.getImageProperties(imgData);
+                    let printHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    
+                    if (printHeight > pdfHeight) {
+                        const scaleFactor = pdfHeight / printHeight;
+                        const printWidth = pdfWidth * scaleFactor;
+                        const marginX = (pdfWidth - printWidth) / 2; 
+                        pdf.addImage(imgData, 'JPEG', marginX, 0, printWidth, pdfHeight);
+                    } else {
+                        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, printHeight);
+                    }
 
-                        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                        const clientName = document.getElementById('nom').value.replace(/[^a-z0-9]/gi, '_').substring(0, 15) || 'client';
-                        const filePrefix = currentFormType === 'prise-en-charge' ? 'PEC' : 'RESTITUTION';
-                        const filename = `${filePrefix}_${clientName}.pdf`;
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    const clientName = document.getElementById('nom').value.replace(/[^a-z0-9]/gi, '_').substring(0, 15) || 'client';
+                    const filePrefix = currentFormType === 'prise-en-charge' ? 'PEC' : 'RESTITUTION';
+                    const filename = `${filePrefix}_${clientName}.pdf`;
 
-                        if (isIOS) {
-                            window.open(pdf.output('bloburl'), '_blank');
-                        } else {
-                            pdf.save(filename);
-                        }
-                    })
-                    .finally(() => {
+                    if (isIOS) {
+                        window.open(pdf.output('bloburl'), '_blank');
+                    } else {
+                        pdf.save(filename);
+                    }
+                })
+                .catch(err => {
+                    console.error("Erreur PDF:", err);
+                    alert("Erreur lors de la génération du PDF.");
+                })
+                .finally(() => {
+                    if(document.body.contains(renderContainer)) {
                         document.body.removeChild(renderContainer);
-                        // Reset Flow
-                        formContainer.style.display = 'none';
-                        selectionScreen.style.display = 'block';
-                        currentFormType = '';
-                    });
+                    }
+                    // Reset UI
+                    formContainer.classList.add('hidden');
+                    selectionScreen.style.display = 'block';
+                    currentFormType = '';
+                });
             });
-
-            // Remove red borders on input
+            
             supportForm.querySelectorAll('[required]').forEach(field => {
                 field.addEventListener('input', () => {
-                    if (field.value.trim()) {
-                        field.classList.remove('border-red-500');
-                    }
+                    if (field.value.trim()) field.classList.remove('border-red-500');
                 });
             });
         });
