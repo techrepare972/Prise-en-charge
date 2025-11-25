@@ -236,10 +236,10 @@
             returnSec.classList.remove('hidden');
             problemField.removeAttribute('required');
         }
-        setTimeout(resizeCanvas, 100); // Petit délai pour le rendu
+        setTimeout(resizeCanvas, 100); 
     }
 
-    // --- PHOTOS (LOGIQUE PRESERVÉE) ---
+    // --- PHOTOS ---
     document.getElementById('photoInput').addEventListener('change', function(e) {
         const files = e.target.files;
         if (files.length + uploadedPhotos.length > 2) {
@@ -298,11 +298,10 @@
     canvas.addEventListener('touchend', () => isDrawing=false);
     document.getElementById('clearSig').addEventListener('click', () => ctx.clearRect(0,0,canvas.width,canvas.height));
 
-    // --- GENERATION PDF (DESIGN "PRO") ---
+    // --- GENERATION PDF ---
     document.getElementById('appForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Données
         const d = {
             date: document.getElementById('date').value,
             name: document.getElementById('clientName').value,
@@ -317,32 +316,40 @@
 
         const doc = new jsPDF();
         const w = doc.internal.pageSize.getWidth();
-        const m = 15; // Marge
+        const m = 15; 
         let y = 15;
 
-        // --- 1. EN-TÊTE LOGO + TITRE ---
+        // --- 1. EN-TÊTE ---
+        // Logo (Gauche, plus grand: 35x23mm)
         const logo = document.getElementById('logoImg');
         if(logo && logo.complete && logo.naturalHeight !== 0) {
             const cvs = document.createElement('canvas'); 
             cvs.width = logo.naturalWidth; cvs.height = logo.naturalHeight;
             cvs.getContext('2d').drawImage(logo,0,0);
-            doc.addImage(cvs.toDataURL('image/png'), 'PNG', m, y, 25, 16);
+            doc.addImage(cvs.toDataURL('image/png'), 'PNG', m, y, 35, 23);
         }
         
+        // Texte (Centré sur la page)
         doc.setFont("helvetica", "bold");
         doc.setFontSize(20);
-        doc.setTextColor(44, 62, 80); // Gris foncé
-        doc.text("TECHPRECISION", w - m, y + 8, { align: "right" });
-        doc.setFontSize(9);
+        doc.setTextColor(44, 62, 80); 
+        // Centrage horizontal (w / 2)
+        doc.text("TECHPRECISION", w / 2, y + 10, { align: "center" });
+        
+        doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(127, 140, 141); // Gris clair
-        doc.text("Service de réparation informatique", w - m, y + 14, { align: "right" });
+        doc.setTextColor(127, 140, 141);
+        doc.text("Service de réparation informatique", w / 2, y + 16, { align: "center" });
 
-        y += 25;
+        y += 28;
 
-        // --- 2. BANDEAU DE TITRE (BLEU) ---
-        doc.setFillColor(0, 86, 179); // Bleu TechPrecision
-        doc.rect(0, y, w, 12, 'F');
+        // --- 2. BANDEAU DE TITRE (Arrondi & Centré) ---
+        // Largeur du bandeau = largeur page - marges doubles
+        const bannerW = w - (m * 2);
+        
+        doc.setFillColor(0, 86, 179); // Bleu
+        // roundedRect(x, y, w, h, radiusX, radiusY, style)
+        doc.roundedRect(m, y, bannerW, 12, 4, 4, 'F');
         
         doc.setTextColor(255, 255, 255);
         doc.setFont("helvetica", "bold");
@@ -352,11 +359,10 @@
         
         y += 22;
 
-        // --- 3. INFOS CLIENT (COLONNES) ---
+        // --- 3. INFOS CLIENT ---
         doc.setTextColor(44, 62, 80);
         doc.setFontSize(10);
 
-        // Helper pour afficher Label: Valeur
         const row = (lbl, val, x) => {
             doc.setFont("helvetica", "bold");
             doc.text(lbl, x, y);
@@ -364,29 +370,25 @@
             doc.text(val || "-", x, y + 5);
         };
 
-        // Colonne 1
         row("CLIENT", d.name, m);
         row("TÉLÉPHONE", d.phone, m + 60);
         row("DATE", d.date, m + 120);
         
         y += 15;
         
-        // Colonne 2
         row("MATÉRIEL", d.type, m);
         row("MODÈLE", d.model, m + 60);
         if(currentType !== 'prise_en_charge') row("RÉF. DOSSIER", d.ref, m + 120);
 
         y += 15;
 
-        // --- 4. DETAILS TECHNIQUES (ENCADRÉ GRIS) ---
-        // Fond gris clair pour la section technique
-        doc.setFillColor(245, 247, 250); // Gris très clair
-        // On calcule la hauteur approx du cadre selon le contenu
+        // --- 4. DETAILS ---
+        doc.setFillColor(245, 247, 250); 
         let boxHeight = 40; 
         if(d.prob.length > 50 || d.work.length > 50) boxHeight = 50;
         
         doc.setDrawColor(230, 230, 230);
-        doc.roundedRect(m, y, w - (m*2), boxHeight, 3, 3, 'FD'); // FD = Fill + Draw borders
+        doc.roundedRect(m, y, w - (m*2), boxHeight, 3, 3, 'FD');
 
         let textY = y + 10;
         let textX = m + 5;
@@ -416,61 +418,38 @@
 
         // --- 5. PHOTOS ---
         if (uploadedPhotos.length > 0) {
-            // Check saut de page
             if (y > 220) { doc.addPage(); y = 20; }
-            
-            doc.setFont("helvetica", "bold");
-            doc.text("PHOTOS", m, y);
-            y += 5;
-
+            doc.setFont("helvetica", "bold"); doc.text("PHOTOS", m, y); y += 5;
             let px = m;
             uploadedPhotos.forEach(p => {
-                // Logique Portrait (50x70)
                 let tw=50, th=70;
                 let dw=tw, dh=th;
-                
-                // Centrage intelligent dans la boite 50x70
                 if(p.w > p.h) {
                     dh = tw * (p.h/p.w);
                     doc.addImage(p.data, 'JPEG', px, y + ((th-dh)/2), tw, dh);
                 } else {
                     dw = th * (p.w/p.h);
-                    if(dw > tw) { dw=tw; dh=tw*(p.h/p.w); } // Si trop large malgré tout
+                    if(dw > tw) { dw=tw; dh=tw*(p.h/p.w); }
                     doc.addImage(p.data, 'JPEG', px + ((tw-dw)/2), y, dw, dh);
                 }
-                // Petit cadre fin autour photo
-                doc.setDrawColor(200);
-                doc.rect(px, y, tw, th);
-                px += 55;
+                doc.setDrawColor(200); doc.rect(px, y, tw, th); px += 55;
             });
             y += 75;
         }
 
         // --- 6. SIGNATURE ---
         if (y > 250) { doc.addPage(); y = 20; }
-        
-        // Ligne séparation
-        doc.setDrawColor(200);
-        doc.line(m, y, w-m, y);
-        y += 10;
-
-        doc.setFont("helvetica", "bold");
-        doc.text("SIGNATURE CLIENT", w - m - 50, y);
-        
+        doc.setDrawColor(200); doc.line(m, y, w-m, y); y += 10;
+        doc.setFont("helvetica", "bold"); doc.text("SIGNATURE CLIENT", w - m - 50, y);
         const sigData = canvas.toDataURL('image/png');
         doc.addImage(sigData, 'PNG', w - m - 50, y + 5, 40, 20);
 
-        // --- PIED DE PAGE ---
-        doc.setFontSize(8);
-        doc.setTextColor(150);
+        // --- FOOTER ---
+        doc.setFontSize(8); doc.setTextColor(150);
         const dateStr = new Date().toLocaleString('fr-FR');
         doc.text(`Document généré par TECHPRECISION le ${dateStr}`, m, 285);
-        
-        // Bande bleue fine tout en bas
-        doc.setFillColor(0, 86, 179);
-        doc.rect(0, 295, w, 2, 'F');
+        doc.setFillColor(0, 86, 179); doc.rect(0, 295, w, 2, 'F');
 
-        // SAVE
         doc.save(`${currentType}_${d.name.replace(/\s/g,'_')}.pdf`);
     });
 
