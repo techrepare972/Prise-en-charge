@@ -55,7 +55,7 @@
 
         /* PREVIEW PHOTOS */
         #photoPreview { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .preview-img { height: 80px; border: 1px solid #ddd; border-radius: 4px; object-fit: cover; }
+        .preview-img { width: 80px; height: 100px; border: 1px solid #ddd; border-radius: 4px; object-fit: cover; background: #eee; }
 
         /* UTILITAIRES */
         .hidden { display: none; }
@@ -145,6 +145,7 @@
                 <label>Photos (Max 2)</label>
                 <input type="file" id="photoInput" accept="image/*" multiple capture="environment">
                 <div id="photoPreview"></div>
+                <small style="color:#666; display:block; margin-top:5px;">Prendre la photo téléphone à la verticale.</small>
             </div>
 
             <div class="form-group">
@@ -167,7 +168,8 @@
     // --- VARIABLES GLOBALES ---
     const { jsPDF } = window.jspdf;
     let currentType = '';
-    let uploadedPhotos = [];
+    // On stocke ici des objets { data: base64, w: width, h: height }
+    let uploadedPhotos = []; 
 
     // --- NAVIGATION ---
     function goHome() {
@@ -203,7 +205,7 @@
         resizeCanvas();
     }
 
-    // --- GESTION PHOTOS ---
+    // --- GESTION PHOTOS (CORRECTION MOBILE) ---
     document.getElementById('photoInput').addEventListener('change', function(e) {
         const files = e.target.files;
         const previewContainer = document.getElementById('photoPreview');
@@ -216,14 +218,51 @@
 
         Array.from(files).forEach(file => {
             const reader = new FileReader();
+            
+            // Étape 1 : Lire le fichier
             reader.onload = function(event) {
-                if(uploadedPhotos.length < 2) {
-                    uploadedPhotos.push(event.target.result);
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.className = 'preview-img';
-                    previewContainer.appendChild(img);
-                }
+                const img = new Image();
+                
+                // Étape 2 : Charger l'image en mémoire
+                img.onload = function() {
+                    // Étape 3 : Dessiner sur un canvas pour "cuire" l'orientation EXIF
+                    // Cela redresse automatiquement l'image sur iOS/Android
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Limiter la résolution pour alléger le PDF (max 1200px)
+                    const maxSize = 1200;
+                    if (width > height) {
+                        if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Récupérer l'image corrigée en Base64
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+                    if(uploadedPhotos.length < 2) {
+                        uploadedPhotos.push({
+                            data: dataUrl,
+                            w: width,
+                            h: height,
+                            ratio: width / height
+                        });
+
+                        // Afficher aperçu
+                        const previewImg = document.createElement('img');
+                        previewImg.src = dataUrl;
+                        previewImg.className = 'preview-img';
+                        previewContainer.appendChild(previewImg);
+                    }
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
@@ -293,8 +332,6 @@
             c.height = logoEl.naturalHeight;
             c.getContext('2d').drawImage(logoEl, 0, 0);
             const logoBase64 = c.toDataURL('image/png'); 
-            
-            // Taille logo PDF (21x14mm)
             doc.addImage(logoBase64, 'PNG', margin, currentY, 21, 14); 
         } else {
             doc.rect(margin, currentY, 21, 14);
@@ -302,7 +339,6 @@
             doc.text("LOGO", margin + 5, currentY + 8);
         }
 
-        // Titres centrés
         doc.setFont("helvetica", "bold");
         doc.setFontSize(22);
         doc.text("TECHPRECISION", pageWidth / 2, currentY + 8, { align: "center" });
@@ -311,7 +347,6 @@
         doc.setFont("helvetica", "normal");
         doc.text("Service de réparation informatique", pageWidth / 2, currentY + 16, { align: "center" });
 
-        // MODIFICATION: Réduction de l'espace avant le trait (25 au lieu de 35)
         currentY += 25;
 
         // Titre Document
@@ -361,7 +396,6 @@
             doc.text("État général :", margin + 2, textY);
             doc.setFont("helvetica", "normal");
             doc.text(condition, margin + 35, textY);
-            
             textY += 15;
             
             doc.setFont("helvetica", "bold");
@@ -380,19 +414,60 @@
 
         currentY += 70;
 
-        // --- PHOTOS ---
+        // --- PHOTOS (LOGIQUE CORRIGÉE POUR MOBILE) ---
         if (uploadedPhotos.length > 0) {
             doc.setFont("helvetica", "bold");
             doc.text("Photos du matériel :", margin, currentY);
             currentY += 5;
             
             let photoX = margin;
-            uploadedPhotos.forEach(photoBase64 => {
-                // MODIFICATION: Inversion Largeur/Hauteur pour mode Portrait (50x70mm)
-                doc.addImage(photoBase64, 'JPEG', photoX, currentY, 50, 70);
-                photoX += 55; // Décalage horizontal réduit
+            
+            uploadedPhotos.forEach(photoObj => {
+                // Dimensions cibles du slot (Vertical)
+                const targetW = 50;
+                const targetH = 70;
+                
+                // On utilise 'object-fit: contain' logic pour ne pas déformer
+                // Si l'image est plus large que haute (ex: prise à l'horizontale mais on veut vertical)
+                // jsPDF va la placer correctement maintenant que le canvas l'a redressée.
+                
+                // Astuce : pour remplir tout le cadre sans déformer, on calcule le ratio
+                // Mais ici on veut juste que ça rentre dans 50x70
+                
+                // NOTE: Grâce à l'étape "canvas" dans le file reader, photoObj.data est une image 
+                // visuellement correcte (Haut est Haut).
+                
+                // On centre l'image dans le rectangle 50x70
+                let drawW = targetW;
+                let drawH = targetH;
+                
+                // Si l'image est "Paysage" (plus large que haute) après correction
+                if (photoObj.w > photoObj.h) {
+                    // On adapte la hauteur pour garder le ratio
+                    drawH = targetW * (photoObj.h / photoObj.w);
+                    // On centre verticalement
+                    const offsetY = (targetH - drawH) / 2;
+                    doc.addImage(photoObj.data, 'JPEG', photoX, currentY + offsetY, targetW, drawH);
+                } else {
+                    // Si l'image est "Portrait" (plus haute que large)
+                    // On adapte la largeur pour garder le ratio
+                    drawW = targetH * (photoObj.w / photoObj.h);
+                    // Si la largeur dépasse le slot (très rare si ratio normal), on contraint la largeur
+                    if (drawW > targetW) {
+                        drawW = targetW;
+                        drawH = targetW * (photoObj.h / photoObj.w);
+                    }
+                    // On centre horizontalement
+                    const offsetX = (targetW - drawW) / 2;
+                    doc.addImage(photoObj.data, 'JPEG', photoX + offsetX, currentY, drawW, drawH);
+                }
+
+                // Cadre esthétique autour de la photo
+                doc.setDrawColor(200);
+                doc.rect(photoX, currentY, targetW, targetH);
+
+                photoX += 55; 
             });
-            // Espace augmenté pour tenir compte de la hauteur des photos verticales
             currentY += 75;
         } else {
             currentY += 10;
